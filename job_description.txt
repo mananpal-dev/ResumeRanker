@@ -1,55 +1,84 @@
-Data Scientist – AI & Analytics Team
+Senior Machine Learning Engineer – Python, MLOps & Applied AI
 
-We are looking for a passionate Data Scientist to join our growing AI & Analytics team. The ideal candidate will turn complex data into actionable insights, build predictive models, and contribute to intelligent decision-making across the organization.
+COMPANY: TechCorp AI Labs
+LOCATION: Remote / Hybrid
+EXPERIENCE: 5–8 years
 
-Key Responsibilities
+──────────────────────────────────────────────────────────────
 
-Analyze structured and unstructured datasets to uncover patterns and trends
+ABOUT THE ROLE
 
-Build and deploy machine learning models for prediction, classification, and recommendation tasks
+We are looking for a Senior Machine Learning Engineer to join our AI Platform team.
+The ideal candidate will design, deploy, and optimize scalable machine learning systems
+and production-grade AI services. You will collaborate closely with engineering,
+product, and infrastructure teams to build intelligent, high-performance solutions.
 
-Perform data cleaning, feature engineering, and exploratory data analysis (EDA)
+The role requires strong expertise in machine learning deployment, cloud infrastructure,
+real-time systems, and operational excellence.
 
-Work with stakeholders to translate business problems into data science solutions
+──────────────────────────────────────────────────────────────
 
-Develop dashboards and visualizations to communicate insights clearly
+REQUIRED SKILLS & EXPERIENCE
 
-Optimize model performance and ensure scalability in production environments
+Programming & Backend:
+  - Advanced Python development
+  - SQL for analytics and data operations
+  - FastAPI for scalable API development
+  - Experience building production-grade backend systems
 
-Required Skills
+Machine Learning & AI:
+  - Machine learning model deployment
+  - Inference optimization pipelines
+  - Recommendation systems
+  - Experiment tracking using MLflow
+  - Real-time AI applications and optimization
 
-Strong programming skills in Python or R
+MLOps & Infrastructure:
+  - Docker and Kubernetes
+  - CI/CD pipelines and automation
+  - AWS cloud services
+  - Monitoring using Prometheus
+  - Redis for high-performance systems
+  - Airflow for orchestration pipelines
 
-Experience with Machine Learning, NLP, or Deep Learning techniques
+Platform Engineering:
+  - Scalable model serving infrastructure
+  - Operational visibility and monitoring
+  - System reliability and performance optimization
+  - Documentation and engineering best practices
 
-Hands-on knowledge of libraries such as Pandas, NumPy, Scikit-learn, TensorFlow, or PyTorch
+Soft Skills:
+  - Structured problem solving
+  - Strong documentation discipline
+  - Fast execution and ownership mindset
+  - Cross-functional stakeholder communication
 
-Proficiency in SQL and data querying
+──────────────────────────────────────────────────────────────
 
-Understanding of statistics, probability, and model evaluation metrics
+NICE TO HAVE
 
-Experience with data visualization tools like Matplotlib, Seaborn, or Tableau
+  - NLP systems or transformer model exposure
+  - Experience with recommendation engines
+  - Knowledge of production AI infrastructure
+  - Experience with distributed systems
+  - Open-source or technical writing contributions
 
-Preferred Qualifications
+──────────────────────────────────────────────────────────────
 
-Experience working with real-world datasets and messy data
+EDUCATION
 
-Knowledge of cloud platforms (AWS / GCP / Azure)
+  B.Tech / B.E / M.Tech in Computer Science,
+  Artificial Intelligence, Data Science,
+  or related engineering discipline.
 
-Familiarity with Git, Docker, or MLOps workflows
+  IIT / NIT background is a plus.
 
-Prior internship/project experience in data science or analytics
+──────────────────────────────────────────────────────────────
 
-Education
+WHAT WE OFFER
 
-Bachelor’s degree in Computer Science, Data Science, Statistics, or related field.
-
-What We Offer
-
-Opportunity to work on real AI-driven products
-
-Exposure to production-level machine learning systems
-
-Collaborative and fast-growing tech environment
-
-Learning budget and mentorship from senior data scientists
+  - Flexible remote-first culture
+  - Competitive salary and equity
+  - AI-focused engineering environment
+  - Opportunity to work on scalable intelligent systems
+  - Learning and certification sponsorship
