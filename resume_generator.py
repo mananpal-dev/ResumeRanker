@@ -21,165 +21,166 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700;800&display=swap');
 
     :root {
-        --bg: #f5f1e8;
-        --paper: #fffdfa;
-        --ink: #1c1a18;
-        --muted: #6f665d;
-        --line: rgba(28, 26, 24, 0.08);
-        --forest: #1f5c4e;
-        --bronze: #ad7442;
-        --rose: #9d5a52;
-        --navy: #25364f;
-        --mint: #dff1ea;
-        --goldwash: #f8ecda;
-        --shadow: 0 20px 60px rgba(40, 34, 28, 0.08);
+        --bg: #f4efe6;
+        --canvas: #fcf8f1;
+        --card: rgba(255, 251, 244, 0.88);
+        --ink: #1d2935;
+        --muted: #697382;
+        --line: rgba(29, 41, 53, 0.08);
+        --emerald: #0d7b67;
+        --amber: #b9842b;
+        --coral: #b65b4e;
+        --navy: #1d3f63;
+        --mist: #e3efe9;
+        --wash: #f7ecd7;
+        --shadow: 0 24px 60px rgba(31, 36, 44, 0.08);
     }
 
     .stApp {
         background:
-            radial-gradient(circle at top left, rgba(173,116,66,0.14), transparent 22%),
-            radial-gradient(circle at top right, rgba(31,92,78,0.12), transparent 20%),
-            linear-gradient(180deg, #f8f3eb 0%, #f3eee5 50%, #f7f3ec 100%);
+            radial-gradient(circle at 10% 8%, rgba(185,132,43,0.12), transparent 22%),
+            radial-gradient(circle at 88% 12%, rgba(13,123,103,0.14), transparent 24%),
+            linear-gradient(180deg, #f7f2ea 0%, #f3ede3 45%, #f8f3eb 100%);
         color: var(--ink);
     }
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         color: var(--ink);
     }
 
-    h1, h2, h3, h4, .display-title {
-        font-family: 'Cormorant Garamond', serif !important;
+    h1, h2, h3, h4, .serif {
+        font-family: 'Fraunces', serif !important;
         color: var(--ink);
-        letter-spacing: 0.2px;
+        letter-spacing: 0.15px;
     }
 
     .block-container {
-        padding-top: 1.2rem;
-        padding-bottom: 2rem;
         max-width: 1380px;
+        padding-top: 1.1rem;
+        padding-bottom: 2rem;
     }
 
     .hero {
-        background:
-            linear-gradient(135deg, rgba(255,253,250,0.96), rgba(245,239,229,0.94)),
-            linear-gradient(120deg, #fffaf0, #eef3ee);
-        border: 1px solid var(--line);
-        border-radius: 30px;
-        padding: 2.6rem 2.4rem;
-        box-shadow: var(--shadow);
         position: relative;
         overflow: hidden;
-        margin-bottom: 1.2rem;
+        background:
+            linear-gradient(135deg, rgba(255,251,244,0.96), rgba(244,238,227,0.94)),
+            linear-gradient(120deg, #fff7ea, #eef4ef);
+        border: 1px solid var(--line);
+        border-radius: 34px;
+        padding: 2.6rem 2.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.15rem;
     }
 
-    .hero::before {
+    .hero:before {
         content: "";
         position: absolute;
-        width: 320px;
-        height: 320px;
         right: -80px;
-        top: -130px;
+        top: -120px;
+        width: 340px;
+        height: 340px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(31,92,78,0.16), transparent 62%);
+        background: radial-gradient(circle, rgba(13,123,103,0.16), transparent 62%);
     }
 
-    .hero::after {
+    .hero:after {
         content: "";
         position: absolute;
+        left: -110px;
+        bottom: -200px;
         width: 360px;
         height: 360px;
-        left: -100px;
-        bottom: -230px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(173,116,66,0.16), transparent 62%);
+        background: radial-gradient(circle, rgba(185,132,43,0.16), transparent 62%);
     }
 
     .hero-row {
         position: relative;
         z-index: 2;
         display: flex;
+        gap: 1.8rem;
         justify-content: space-between;
-        gap: 1.6rem;
-        flex-wrap: wrap;
         align-items: flex-start;
+        flex-wrap: wrap;
     }
 
     .eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        padding: 0.42rem 0.86rem;
         border-radius: 999px;
-        background: rgba(31,92,78,0.08);
-        color: var(--forest);
-        padding: 0.42rem 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        background: rgba(13,123,103,0.10);
+        color: var(--emerald);
         font-size: 0.76rem;
         font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
     }
 
     .hero-title {
-        margin-top: 0.9rem;
-        font-size: 4rem;
-        line-height: 0.95;
-        max-width: 760px;
+        margin-top: 0.95rem;
+        font-size: 4.05rem;
+        line-height: 0.94;
+        max-width: 780px;
     }
 
     .hero-copy {
-        max-width: 720px;
+        margin-top: 0.85rem;
+        max-width: 730px;
         color: var(--muted);
         font-size: 1rem;
-        line-height: 1.75;
-        margin-top: 0.8rem;
+        line-height: 1.76;
     }
 
     .hero-panel {
-        width: 290px;
+        width: 320px;
         background: rgba(255,255,255,0.72);
         border: 1px solid var(--line);
-        border-radius: 22px;
-        padding: 1rem;
-        box-shadow: 0 10px 30px rgba(40,34,28,0.05);
+        border-radius: 24px;
+        padding: 1.05rem;
+        box-shadow: 0 12px 30px rgba(31,36,44,0.05);
     }
 
-    .hero-panel .kicker {
-        font-size: 0.75rem;
-        letter-spacing: 0.08em;
+    .hero-panel .k {
+        font-size: 0.74rem;
         text-transform: uppercase;
+        letter-spacing: 0.08em;
         color: var(--muted);
         font-weight: 800;
     }
 
-    .hero-panel .value {
-        margin-top: 0.3rem;
-        font-size: 1.8rem;
+    .hero-panel .v {
+        margin-top: 0.28rem;
+        font-size: 1.85rem;
         font-weight: 800;
     }
 
-    .hero-panel .sub {
-        margin-top: 0.35rem;
+    .hero-panel .s {
+        margin-top: 0.36rem;
         color: var(--muted);
         font-size: 0.9rem;
-        line-height: 1.6;
+        line-height: 1.65;
     }
 
     .ribbon-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1rem;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.1rem;
     }
 
     .ribbon {
-        background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.78);
         border: 1px solid var(--line);
         border-radius: 22px;
-        padding: 1rem 1rem 0.9rem;
-        box-shadow: 0 12px 32px rgba(40,34,28,0.04);
+        padding: 1rem 1rem 0.95rem;
+        box-shadow: 0 10px 28px rgba(31,36,44,0.04);
     }
 
     .ribbon .label {
@@ -191,19 +192,19 @@ st.markdown(
     }
 
     .ribbon .value {
-        margin-top: 0.25rem;
-        font-size: 1.55rem;
+        margin-top: 0.28rem;
+        font-size: 1.58rem;
         font-weight: 800;
     }
 
     .ribbon .sub {
+        margin-top: 0.18rem;
         color: var(--muted);
         font-size: 0.86rem;
-        margin-top: 0.2rem;
     }
 
     .section-shell {
-        background: rgba(255,255,255,0.82);
+        background: var(--card);
         border: 1px solid var(--line);
         border-radius: 26px;
         padding: 1.1rem 1.15rem 1.2rem;
@@ -211,157 +212,148 @@ st.markdown(
     }
 
     .resume-card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,247,241,0.96));
+        background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(251,246,238,0.97));
         border: 1px solid var(--line);
-        border-radius: 24px;
+        border-radius: 28px;
         box-shadow: var(--shadow);
         overflow: hidden;
         margin-bottom: 1rem;
     }
 
     .resume-head {
-        padding: 1.2rem 1.25rem 0.8rem;
+        padding: 1.25rem 1.3rem 0.95rem;
         border-bottom: 1px solid var(--line);
-        background: linear-gradient(120deg, rgba(223,241,234,0.65), rgba(248,236,218,0.68));
+        background: linear-gradient(120deg, rgba(227,239,233,0.75), rgba(247,236,215,0.72));
     }
 
     .resume-name {
-        font-size: 1.65rem;
+        font-size: 1.8rem;
         font-weight: 800;
         color: var(--ink);
     }
 
     .resume-role {
-        margin-top: 0.2rem;
+        margin-top: 0.24rem;
         color: var(--muted);
-        font-size: 0.96rem;
+        font-size: 0.97rem;
     }
 
     .chip-row {
         display: flex;
         flex-wrap: wrap;
         gap: 0.45rem;
-        margin-top: 0.75rem;
+        margin-top: 0.78rem;
     }
 
     .chip {
         border-radius: 999px;
-        padding: 0.38rem 0.74rem;
+        padding: 0.38rem 0.76rem;
         font-size: 0.76rem;
         font-weight: 700;
         border: 1px solid transparent;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
     }
 
-    .chip.forest { background: #e1f1ec; color: #1f5c4e; border-color: #c8e4db; }
-    .chip.gold { background: #faeedc; color: #9a6232; border-color: #eed4af; }
-    .chip.rose { background: #f4e3e0; color: #914e47; border-color: #e6c5bf; }
-    .chip.navy { background: #e5ebf4; color: #304463; border-color: #d2dcea; }
+    .chip.emerald { background: #def1eb; color: #0d7b67; border-color: #c7e6dc; }
+    .chip.amber { background: #f8edd8; color: #9a6a18; border-color: #ecd5a7; }
+    .chip.coral { background: #f6e4df; color: #974b40; border-color: #e9c7bf; }
+    .chip.navy { background: #e5edf6; color: #264767; border-color: #d1deed; }
 
     .resume-body {
-        padding: 1rem 1.25rem 1.2rem;
+        padding: 1rem 1.3rem 1.25rem;
     }
 
     .metric-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.8rem;
-        margin-bottom: 0.9rem;
+        gap: 0.82rem;
+        margin-bottom: 0.95rem;
     }
 
     .metric {
-        background: rgba(247,243,234,0.9);
-        border: 1px solid rgba(28,26,24,0.05);
+        background: rgba(247,243,234,0.95);
+        border: 1px solid rgba(29,41,53,0.05);
         border-radius: 18px;
-        padding: 0.8rem;
+        padding: 0.84rem;
     }
 
     .metric .k {
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        font-weight: 800;
         color: var(--muted);
+        font-weight: 800;
     }
 
     .metric .v {
         margin-top: 0.28rem;
-        font-size: 1.05rem;
+        font-size: 1.04rem;
         font-weight: 800;
         color: var(--ink);
     }
 
     .summary-box {
-        background: linear-gradient(90deg, #1f5c4e, #314f4c);
-        color: #fffdf9;
+        background: linear-gradient(90deg, #103f5a, #1d6b69);
+        color: #fffdfa;
         border-radius: 18px;
         padding: 0.95rem 1rem;
         margin: 0.85rem 0;
     }
 
-    .summary-box strong {
-        color: white;
-    }
-
     .summary-box span {
-        color: rgba(255,255,255,0.82);
+        color: rgba(255,255,255,0.84);
         font-size: 0.92rem;
-    }
-
-    .skill-cloud {
-        margin-top: 0.3rem;
     }
 
     .skill-pill {
         display: inline-block;
-        padding: 0.3rem 0.7rem;
+        padding: 0.31rem 0.72rem;
         border-radius: 999px;
-        background: #f1f5f9;
+        background: #f1f5f8;
         color: #334155;
         border: 1px solid rgba(51,65,85,0.10);
         margin: 0.18rem;
         font-size: 0.76rem;
-        font-weight: 600;
+        font-weight: 700;
     }
 
     .small-note {
         color: var(--muted);
-        font-size: 0.88rem;
-        line-height: 1.6;
+        font-size: 0.89rem;
+        line-height: 1.68;
     }
 
     .stButton > button, .stDownloadButton > button {
         border-radius: 14px;
-        border: 1px solid rgba(28,26,24,0.08);
-        background: linear-gradient(135deg, #1c1a18, #36574f);
+        border: 1px solid rgba(29,41,53,0.08);
+        background: linear-gradient(135deg, #1d2935, #23685d);
         color: white;
         font-weight: 800;
-        box-shadow: 0 12px 28px rgba(28,26,24,0.10);
+        box-shadow: 0 12px 28px rgba(29,41,53,0.10);
     }
 
     .stTabs [data-baseweb="tab"] {
-        background: rgba(255,255,255,0.72);
+        background: rgba(255,255,255,0.74);
         border: 1px solid var(--line);
         border-radius: 14px;
         font-weight: 800;
-        padding: 0.5rem 0.9rem;
+        padding: 0.52rem 0.92rem;
     }
 
     .stTabs [aria-selected="true"] {
-        background: #1c1a18 !important;
-        color: #fffdf9 !important;
+        background: #1d2935 !important;
+        color: #fffdfa !important;
     }
 
     [data-testid="stSidebar"] {
         background:
-            radial-gradient(circle at top right, rgba(173,116,66,0.18), transparent 28%),
-            linear-gradient(180deg, #1f2623 0%, #2d3734 60%, #35403d 100%);
+            radial-gradient(circle at top right, rgba(185,132,43,0.18), transparent 28%),
+            linear-gradient(180deg, #1a242f 0%, #243240 62%, #2e3d4d 100%);
     }
 
     [data-testid="stSidebar"] * {
-        color: #f7f3ec !important;
+        color: #f7f4ee !important;
     }
 
     @media (max-width: 980px) {
@@ -423,32 +415,31 @@ ROLE_LIBRARY = {
     },
 }
 
-
 FIRST_NAMES = [
     "Aarav", "Ishita", "Rohan", "Sana", "Vivaan", "Ananya", "Kabir", "Meera",
     "Dev", "Aditi", "Arjun", "Kiara", "Nikhil", "Tanya", "Reyansh", "Myra",
-    "Dhruv", "Siya", "Yash", "Ritika", "Kunal", "Prisha", "Neil", "Rhea"
+    "Dhruv", "Siya", "Yash", "Ritika", "Kunal", "Prisha", "Neil", "Rhea",
 ]
 LAST_NAMES = [
     "Sharma", "Reddy", "Patel", "Malhotra", "Verma", "Kapoor", "Nair", "Joshi",
     "Mehta", "Bose", "Chauhan", "Sethi", "Iyer", "Bhatia", "Khanna", "Rao",
-    "Menon", "Singh", "Agarwal", "Mishra", "Pillai", "Desai", "Bansal", "Saxena"
+    "Menon", "Singh", "Agarwal", "Mishra", "Pillai", "Desai", "Bansal", "Saxena",
 ]
 COMPANIES = [
     "NovaGrid", "Verity Labs", "BlueOrbit", "Northscale", "MintBridge",
     "AetherWorks", "CrestIQ", "LatticeFox", "BrightLayer", "CloudSpire",
-    "PixelHarbor", "QuantNest"
+    "PixelHarbor", "QuantNest",
 ]
 COLLEGES = [
     "IIT Delhi", "BITS Pilani", "NIT Trichy", "VIT Vellore",
     "Delhi Technological University", "PES University",
-    "SRM Institute of Science and Technology", "Manipal Institute of Technology"
+    "SRM Institute of Science and Technology", "Manipal Institute of Technology",
 ]
 CITIES = ["Bengaluru", "Hyderabad", "Pune", "Chennai", "Gurugram", "Noida", "Mumbai", "Kochi", "Ahmedabad"]
 SOFT_SKILLS = [
     "clear stakeholder communication", "ownership mindset", "cross-functional collaboration",
     "structured problem solving", "fast execution", "mentoring ability",
-    "product thinking", "documentation discipline", "decision-making under ambiguity"
+    "product thinking", "documentation discipline", "decision-making under ambiguity",
 ]
 SUMMARY_STYLES = [
     "Outcome-driven professional with a strong track record of turning ambiguous business needs into measurable results.",
@@ -497,7 +488,7 @@ def generate_name(existing: set) -> str:
             existing.add(name)
             return name
         attempts += 1
-    name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)} {random.randint(1,999)}"
+    name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)} {random.randint(1, 999)}"
     existing.add(name)
     return name
 
@@ -691,24 +682,35 @@ def as_dataframe(profiles: List[ResumeProfile]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def skill_overlap_percent(profiles: List[ResumeProfile]) -> int:
+    if not profiles:
+        return 0
+    all_skills = [skill for profile in profiles for skill in profile.skills]
+    if not all_skills:
+        return 0
+    unique = len(set(all_skills))
+    total = len(all_skills)
+    return int(round((1 - unique / total) * 100)) if total else 0
+
+
 st.markdown(
     """
     <div class="hero">
       <div class="hero-row">
         <div>
-          <div class="eyebrow">Synthetic Resume Lab · Premium Demo Generator</div>
-          <div class="hero-title">Generate recruiter-grade sample resumes that make your project look serious.</div>
+          <div class="eyebrow">Synthetic Resume Lab · Demo Data Studio</div>
+          <div class="hero-title">Generate polished sample resumes that make your ATS demo feel credible.</div>
           <div class="hero-copy">
-            Build realistic test resumes in one click, vary role fit and seniority, and export polished `.txt`
-            profiles you can feed straight into your ranking or ATS-style screening workflow.
+            Create realistic recruiter-facing resumes with believable summaries, measured achievements,
+            intentional variation, and clean export flows you can immediately plug into your resume ranker.
           </div>
         </div>
         <div class="hero-panel">
-          <div class="kicker">Best use case</div>
-          <div class="value">Project demos that feel premium</div>
-          <div class="sub">
-            Create believable resumes with strong summaries, measurable achievements, clean formatting,
-            and optional skill gaps so your testing looks intentional instead of random.
+          <div class="k">Best for</div>
+          <div class="v">Portfolio demos with substance</div>
+          <div class="s">
+            Instead of random filler text, this generator produces cohesive candidate narratives with
+            role-fit signals, strong formatting, and optional gaps that help your ranking logic look sharper.
           </div>
         </div>
       </div>
@@ -723,18 +725,14 @@ tab_generate, tab_preview, tab_about = st.tabs(["Generate", "Preview & Export", 
 
 with st.sidebar:
     st.markdown("## Resume Forge Studio")
-    st.markdown("Create polished synthetic resumes for demos, ATS testing, and recruiter mock reviews.")
+    st.markdown("Create premium synthetic resumes for recruiter demos, ATS testing, and shortlist mockups.")
     st.markdown("---")
     selected_role = st.selectbox("Target role", list(ROLE_LIBRARY.keys()), index=0)
-    resume_count = st.slider("Number of resumes", 1, 20, 6)
-    years_min, years_max = st.select_slider(
-        "Experience range",
-        options=list(range(0, 13)),
-        value=(1, 6),
-    )
+    resume_count = st.slider("Number of resumes", 1, 20, 8)
+    years_min, years_max = st.select_slider("Experience range", options=list(range(0, 13)), value=(1, 6))
     skill_count = st.slider("Skills per resume", 5, 10, 8)
     tone = st.selectbox("Resume tone", ["Executive", "Modern", "ATS-Friendly", "Ambitious", "Calm & Strategic"], index=0)
-    include_gaps = st.toggle("Add small intentional skill gaps", value=True)
+    include_gaps = st.toggle("Add intentional skill gaps", value=True)
     random_seed = st.number_input("Random seed", min_value=1, max_value=999999, value=42, step=1)
     generate_btn = st.button("Generate Resume Set", use_container_width=True)
 
@@ -776,60 +774,60 @@ with tab_generate:
           <div class="ribbon">
             <div class="label">Target Role</div>
             <div class="value">{selected_role}</div>
-            <div class="sub">Primary simulation profile</div>
+            <div class="sub">Primary candidate profile</div>
           </div>
           <div class="ribbon">
             <div class="label">Batch Size</div>
             <div class="value">{resume_count}</div>
-            <div class="sub">Auto-generated resumes</div>
+            <div class="sub">Generated resumes per run</div>
           </div>
           <div class="ribbon">
             <div class="label">Experience Window</div>
             <div class="value">{years_min}–{years_max} yrs</div>
-            <div class="sub">Seniority variety for testing</div>
+            <div class="sub">Range of seniority for demos</div>
           </div>
           <div class="ribbon">
-            <div class="label">Quality Mode</div>
+            <div class="label">Narrative Tone</div>
             <div class="value">{tone}</div>
-            <div class="sub">Presentation and summary style</div>
+            <div class="sub">How polished each resume sounds</div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    col_a, col_b = st.columns([1.3, 1])
+    left, right = st.columns([1.25, 1])
 
-    with col_a:
+    with left:
         st.markdown('<div class="section-shell">', unsafe_allow_html=True)
-        st.markdown("## What this generator does")
+        st.markdown("## What this generator improves")
         st.markdown(
             """
-            - Creates realistic synthetic resumes for your chosen role
-            - Varies names, experience, tools, strengths, and project bullets
-            - Adds measurable achievements so the output looks intentional
-            - Lets you simulate imperfect candidates with small skill gaps
-            - Exports `.txt` resumes ready for ranking-project testing
+            - Produces realistic resumes instead of generic placeholder text
+            - Balances role fit, skills, tools, projects, and measurable impact
+            - Simulates both strong-fit and imperfect candidates for better ranking demos
+            - Makes exports presentation-ready for recruiter-facing walkthroughs
+            - Helps you generate repeatable test datasets with seed control
             """
         )
         st.markdown(
-            '<div class="small-note">Tip: change the random seed whenever you want a fresh batch. Same seed = repeatable output, new seed = new names and new resumes.</div>',
+            '<div class="small-note">Tip: keep the same seed for stable demos, then change the seed to generate a fresh cast of candidates without changing your slider setup.</div>',
             unsafe_allow_html=True,
         )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    with col_b:
+    with right:
         st.markdown('<div class="section-shell">', unsafe_allow_html=True)
-        st.markdown("## Demo ideas")
+        st.markdown("## Suggested demo flows")
         st.markdown(
             """
-            - Generate 10 resumes for one role and test ranking quality
-            - Compare strong-fit vs partial-fit candidates
-            - Stress-test export flows and parsing quality
-            - Use multiple seeds to create fresh demo datasets quickly
+            - Create one high-fit batch and one gap-heavy batch, then compare ranking quality
+            - Use Product Manager or Frontend sets to prove cross-role flexibility
+            - Export ZIP files and feed them into your Streamlit or Tkinter ranker
+            - Refresh with new seeds to create multiple recruiter-review scenarios
             """
         )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 with tab_preview:
@@ -841,28 +839,32 @@ with tab_preview:
             for skill in profile.skills:
                 top_skills[skill] += 1
 
+        avg_years = sum(p.years for p in profiles) / len(profiles)
+        overlap = skill_overlap_percent(profiles)
+        top_skill = top_skills.most_common(1)[0][0] if top_skills else "N/A"
+
         st.markdown(
             f"""
             <div class="ribbon-grid">
               <div class="ribbon">
                 <div class="label">Generated</div>
                 <div class="value">{len(profiles)}</div>
-                <div class="sub">Ready-to-export resumes</div>
+                <div class="sub">Recruiter-ready sample resumes</div>
               </div>
               <div class="ribbon">
                 <div class="label">Average Experience</div>
-                <div class="value">{sum(p.years for p in profiles)/len(profiles):.1f} yrs</div>
-                <div class="sub">Across current batch</div>
+                <div class="value">{avg_years:.1f} yrs</div>
+                <div class="sub">Across the current batch</div>
               </div>
               <div class="ribbon">
                 <div class="label">Most Common Skill</div>
-                <div class="value">{top_skills.most_common(1)[0][0] if top_skills else "N/A"}</div>
-                <div class="sub">Best for parser testing</div>
+                <div class="value">{top_skill}</div>
+                <div class="sub">Useful for parser validation</div>
               </div>
               <div class="ribbon">
-                <div class="label">Gap Mode</div>
-                <div class="value">{"Enabled" if include_gaps else "Disabled"}</div>
-                <div class="sub">Candidate realism setting</div>
+                <div class="label">Skill Reuse Level</div>
+                <div class="value">{overlap}%</div>
+                <div class="sub">Shared-signal intensity across profiles</div>
               </div>
             </div>
             """,
@@ -904,10 +906,10 @@ with tab_preview:
                     <div class="resume-name">{profile.name}</div>
                     <div class="resume-role">{profile.role} · {profile.city}</div>
                     <div class="chip-row">
-                      <span class="chip forest">{profile.years} years experience</span>
-                      <span class="chip gold">{profile.tone}</span>
+                      <span class="chip emerald">{profile.years} years experience</span>
+                      <span class="chip amber">{profile.tone}</span>
                       <span class="chip navy">{selected_role}</span>
-                      <span class="chip rose">{'Intentional gaps' if include_gaps else 'Strong-fit profile'}</span>
+                      <span class="chip coral">{'Intentional gaps' if include_gaps else 'Strong-fit profile'}</span>
                     </div>
                   </div>
                   <div class="resume-body">
@@ -927,7 +929,7 @@ with tab_preview:
                     <div class="small-note" style="margin-top:0.35rem;">{profile.summary}</div>
 
                     <div style="margin-top:0.9rem;"><strong>Skill cloud</strong></div>
-                    <div class="skill-cloud">
+                    <div>
                       {"".join(f'<span class="skill-pill">{skill}</span>' for skill in profile.skills + profile.tools[:3])}
                     </div>
                   </div>
@@ -938,12 +940,7 @@ with tab_preview:
 
             with st.expander(f"Open full resume text for {profile.name}"):
                 resume_text = render_resume_text(profile)
-                st.text_area(
-                    "Resume text",
-                    value=resume_text,
-                    height=420,
-                    key=f"resume_preview_{idx}",
-                )
+                st.text_area("Resume text", value=resume_text, height=420, key=f"resume_preview_{idx}")
                 st.download_button(
                     f"Download {profile.name} resume",
                     data=resume_text.encode("utf-8"),
@@ -960,17 +957,18 @@ with tab_about:
     st.markdown("## About Resume Forge Studio")
     st.markdown(
         """
-        This file is a synthetic resume generator made to help you test and demo a resume ranking or ATS-style project.
+        Resume Forge Studio is built to support one specific goal: making your resume-ranking project feel polished in demos, interviews, and portfolio walkthroughs.
 
-        It is designed to impress in two ways:
-        - The generated resumes look more realistic than filler data
-        - The frontend feels premium and presentation-ready for interviews or portfolio demos
+        What it does well:
+        - Generates cleaner, more believable sample resumes
+        - Produces exportable `.txt` files that work naturally with parser-based ranking flows
+        - Gives you enough variation to demo shortlist quality, edge cases, and ranking confidence
 
         Suggested usage:
         1. Run `streamlit run resume_generator.py`
-        2. Generate a batch for a target role
-        3. Export the ZIP of `.txt` resumes
+        2. Generate a role-specific batch
+        3. Download the ZIP of `.txt` resumes
         4. Feed those files into your ranking project
-        5. Show both apps together in your demo
+        5. Show both tools together for a complete recruiter workflow demo
         """
     )

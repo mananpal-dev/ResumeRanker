@@ -1,13 +1,13 @@
 # ============================================================
-#   app.py  –  Streamlit Web App  |  AI Resume Ranker v3.0
+#   app.py  –  Streamlit Web App  |  AI Resume Ranker v4.0
 #   Run:  streamlit run app.py
 # ============================================================
 
+import base64
 import os
 import sys
 import tempfile
 import time
-import base64
 from collections import Counter
 from typing import List
 
@@ -16,589 +16,580 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-# local modules
 sys.path.insert(0, os.path.dirname(__file__))
-from config import APP_VERSION, SHORTLIST_THRESHOLD, MAYBE_THRESHOLD
-from utils.ranker import rank_resumes, compute_summary, CandidateResult
+
+from config import (
+    APP_VERSION,
+    INTERVIEW_READY_SCORE,
+    MAYBE_THRESHOLD,
+    PRIORITY_HIGH_COVERAGE,
+    PRIORITY_HIGH_EXP,
+    PRIORITY_HIGH_SCORE,
+    PRIORITY_MEDIUM_COVERAGE,
+    PRIORITY_MEDIUM_SCORE,
+    RECRUITER_DECISIONS,
+    SHORTLIST_THRESHOLD,
+)
 from utils.exporter import export_csv, export_json, export_txt_report
+from utils.ranker import CandidateResult, compute_summary, rank_resumes
 
 
-# ── Page config ───────────────────────────────────────────────
 st.set_page_config(
     page_title="AI Resume Ranker",
     page_icon="🎯",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# ── Session state ─────────────────────────────────────────────
-if "recruiter_notes" not in st.session_state:
-    st.session_state["recruiter_notes"] = {}
 
-if "recruiter_decisions" not in st.session_state:
-    st.session_state["recruiter_decisions"] = {}
+for key, default in {
+    "recruiter_notes": {},
+    "recruiter_decisions": {},
+    "jd_text_override": "",
+    "results": None,
+    "summary": None,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
 
-if "jd_text_override" not in st.session_state:
-    st.session_state["jd_text_override"] = ""
 
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700;800&display=swap');
 
-# ── Custom CSS ────────────────────────────────────────────────
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap');
-
-:root {
-    --bg: #f7f3ec;
-    --surface: #fffdf8;
-    --surface-2: #f2ebe0;
-    --ink: #17221f;
-    --muted: #6f756c;
-    --line: rgba(23, 34, 31, 0.08);
-    --teal: #0f766e;
-    --teal-soft: #d9f2ee;
-    --gold: #c48a2c;
-    --gold-soft: #f9edd7;
-    --coral: #b94f37;
-    --coral-soft: #f7dfda;
-    --olive: #5d6c3f;
-    --olive-soft: #e7edd8;
-    --navy: #1e334d;
-    --navy-soft: #dfe7f1;
-    --shadow: 0 18px 60px rgba(31, 37, 34, 0.08);
-}
-
-.stApp {
-    background:
-        radial-gradient(circle at top left, rgba(196,138,44,0.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(15,118,110,0.10), transparent 24%),
-        linear-gradient(180deg, #f8f5ef 0%, #f4efe6 48%, #f8f4ee 100%);
-    color: var(--ink);
-}
-
-html, body, [class*="css"] {
-    font-family: 'Manrope', sans-serif;
-    color: var(--ink);
-}
-
-h1, h2, h3, h4, .display-serif {
-    font-family: 'Instrument Serif', serif !important;
-    letter-spacing: 0.2px;
-    color: var(--ink);
-}
-
-section.main > div {
-    padding-top: 1.1rem;
-}
-
-.block-container {
-    padding-top: 1.2rem;
-    padding-bottom: 2rem;
-    max-width: 1360px;
-}
-
-.hero-shell {
-    position: relative;
-    overflow: hidden;
-    background:
-        linear-gradient(135deg, rgba(255,253,248,0.95), rgba(247,243,236,0.92)),
-        linear-gradient(120deg, #fff9ef, #f1f4ec);
-    border: 1px solid rgba(23, 34, 31, 0.08);
-    border-radius: 28px;
-    padding: 2.5rem 2.4rem 2rem 2.4rem;
-    box-shadow: var(--shadow);
-    margin-bottom: 1.25rem;
-}
-.hero-shell::before {
-    content: "";
-    position: absolute;
-    width: 420px;
-    height: 420px;
-    right: -120px;
-    top: -160px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(15,118,110,0.16), transparent 60%);
-}
-.hero-shell::after {
-    content: "";
-    position: absolute;
-    width: 360px;
-    height: 360px;
-    left: -120px;
-    bottom: -200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196,138,44,0.18), transparent 62%);
-}
-.hero-row {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    gap: 2rem;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-}
-.hero-copy {
-    max-width: 760px;
-}
-.hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.42rem 0.8rem;
-    border-radius: 999px;
-    background: rgba(15,118,110,0.08);
-    color: var(--teal);
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-.hero-title {
-    margin: 0.9rem 0 0 0;
-    font-size: 3.7rem;
-    line-height: 0.94;
-    max-width: 760px;
-}
-.hero-sub {
-    margin-top: 0.9rem;
-    font-size: 1.02rem;
-    color: var(--muted);
-    max-width: 680px;
-    line-height: 1.7;
-}
-.hero-panel {
-    min-width: 260px;
-    background: rgba(255,255,255,0.72);
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 20px;
-    padding: 1rem 1rem 0.9rem 1rem;
-    box-shadow: 0 10px 30px rgba(31,37,34,0.05);
-}
-.hero-panel-title {
-    font-size: 0.76rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    font-weight: 800;
-}
-.hero-panel-value {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--ink);
-    margin-top: 0.25rem;
-}
-.hero-panel-note {
-    color: var(--muted);
-    font-size: 0.88rem;
-    line-height: 1.5;
-}
-
-.ribbon-row {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-    margin: 1rem 0 1.6rem 0;
-}
-.ribbon-card {
-    background: rgba(255,255,255,0.74);
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 18px;
-    padding: 1rem 1rem 0.9rem 1rem;
-    box-shadow: 0 8px 24px rgba(31,37,34,0.04);
-}
-.ribbon-label {
-    font-size: 0.74rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-.ribbon-value {
-    margin-top: 0.3rem;
-    font-size: 1.55rem;
-    font-weight: 800;
-    color: var(--ink);
-}
-.ribbon-sub {
-    margin-top: 0.2rem;
-    color: var(--muted);
-    font-size: 0.86rem;
-}
-
-.signal-board {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr 1fr;
-    gap: 1rem;
-    margin: 0.8rem 0 1.7rem 0;
-}
-.signal-card {
-    border-radius: 22px;
-    padding: 1.15rem 1.15rem 1rem 1.15rem;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(23,34,31,0.08);
-    min-height: 142px;
-}
-.signal-card.teal {
-    background: linear-gradient(180deg, #f8fffd, #eaf8f5);
-}
-.signal-card.gold {
-    background: linear-gradient(180deg, #fffaf3, #f9edd7);
-}
-.signal-card.coral {
-    background: linear-gradient(180deg, #fff8f6, #f7dfda);
-}
-.signal-kicker {
-    font-size: 0.74rem;
-    text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: rgba(23,34,31,0.64);
-}
-.signal-title {
-    font-size: 1.4rem;
-    font-weight: 800;
-    margin-top: 0.4rem;
-    color: var(--ink);
-}
-.signal-copy {
-    margin-top: 0.4rem;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: rgba(23,34,31,0.74);
-}
-
-.section-card {
-    background: rgba(255,255,255,0.8);
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 24px;
-    padding: 1.15rem 1.15rem 1.2rem 1.15rem;
-    box-shadow: var(--shadow);
-}
-
-.candidate-card {
-    position: relative;
-    overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.95), rgba(252,249,243,0.95));
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 26px;
-    padding: 1.2rem 1.25rem 1.15rem 1.25rem;
-    margin-bottom: 1rem;
-    box-shadow: var(--shadow);
-}
-.candidate-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 6px;
-    background: linear-gradient(180deg, #0f766e, #c48a2c);
-}
-.candidate-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-}
-.rank-pill {
-    min-width: 70px;
-    text-align: center;
-    background: #17221f;
-    color: #fffdf8;
-    border-radius: 18px;
-    padding: 0.65rem 0.8rem;
-}
-.rank-pill .rk {
-    display: block;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.75;
-}
-.rank-pill .rv {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-top: 0.15rem;
-}
-.candidate-name {
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: var(--ink);
-    margin: 0;
-}
-.candidate-file {
-    color: var(--muted);
-    font-size: 0.86rem;
-    margin-top: 0.18rem;
-}
-.candidate-headline {
-    margin-top: 0.6rem;
-    color: rgba(23,34,31,0.80);
-    font-size: 0.95rem;
-    line-height: 1.65;
-}
-.chip-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin: 0.8rem 0 0.7rem 0;
-}
-.soft-chip, .priority-chip, .status-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
-    padding: 0.42rem 0.8rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    border: 1px solid transparent;
-}
-.status-shortlisted {
-    background: #dff6ed;
-    color: #0d7b58;
-    border-color: #b8e9d6;
-}
-.status-maybe {
-    background: #fff2db;
-    color: #9a6612;
-    border-color: #f0d6a4;
-}
-.status-not {
-    background: #fde6e1;
-    color: #a04532;
-    border-color: #efc0b5;
-}
-.priority-high {
-    background: #e6f7f2;
-    color: #0f766e;
-}
-.priority-medium {
-    background: #fff2db;
-    color: #9a6612;
-}
-.priority-low {
-    background: #f3e7e3;
-    color: #8f5347;
-}
-.soft-chip {
-    background: #eef1f4;
-    color: #32424d;
-    border-color: rgba(50,66,77,0.10);
-}
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.8rem;
-    margin-top: 0.9rem;
-}
-.metric-mini {
-    background: rgba(247,243,236,0.9);
-    border: 1px solid rgba(23,34,31,0.06);
-    border-radius: 18px;
-    padding: 0.8rem 0.8rem 0.75rem 0.8rem;
-}
-.metric-mini .label {
-    font-size: 0.72rem;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 800;
-}
-.metric-mini .value {
-    margin-top: 0.28rem;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--ink);
-}
-.score-track {
-    margin-top: 0.8rem;
-    height: 10px;
-    background: #ece6db;
-    border-radius: 999px;
-    overflow: hidden;
-}
-.score-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #0f766e 0%, #c48a2c 100%);
-}
-.score-note {
-    margin-top: 0.38rem;
-    font-size: 0.84rem;
-    color: var(--muted);
-}
-.skill-section {
-    margin-top: 0.95rem;
-}
-.section-title {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    font-weight: 800;
-    margin-bottom: 0.45rem;
-}
-.skill-tag {
-    display: inline-block;
-    background: #e3f3ef;
-    border: 1px solid #c6e5de;
-    color: #0f5f59;
-    border-radius: 999px;
-    padding: 0.3rem 0.72rem;
-    font-size: 0.76rem;
-    margin: 0.18rem;
-    font-weight: 600;
-}
-.missing-tag {
-    display: inline-block;
-    background: #f8e8e3;
-    border: 1px solid #ebc8bf;
-    color: #9f4735;
-    border-radius: 999px;
-    padding: 0.3rem 0.72rem;
-    font-size: 0.76rem;
-    margin: 0.18rem;
-    font-weight: 600;
-}
-
-.priority-banner {
-    background: linear-gradient(90deg, #17221f, #2c403b);
-    color: #fffdf8;
-    border-radius: 18px;
-    padding: 0.9rem 1rem;
-    margin-top: 0.95rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.priority-banner strong {
-    color: #fff;
-}
-.priority-banner span {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.9rem;
-}
-
-.note-box {
-    background: #fffdf8;
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 18px;
-    padding: 0.9rem;
-}
-
-.table-card {
-    background: rgba(255,255,255,0.82);
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 22px;
-    padding: 1rem;
-    box-shadow: var(--shadow);
-}
-
-[data-testid="stSidebar"] {
-    background:
-        radial-gradient(circle at top right, rgba(196,138,44,0.18), transparent 26%),
-        linear-gradient(180deg, #16211f 0%, #23312d 60%, #2d3d38 100%);
-}
-[data-testid="stSidebar"] * {
-    color: #f7f3ec !important;
-}
-[data-testid="stSidebar"] .stSlider [data-baseweb="thumb"] {
-    background: #f5d38c !important;
-}
-[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
-    background: rgba(255,255,255,0.14) !important;
-    border-radius: 999px !important;
-}
-
-.stButton > button {
-    border-radius: 14px;
-    border: 1px solid rgba(23,34,31,0.08);
-    background: linear-gradient(135deg, #17221f, #355047);
-    color: #fffdf8;
-    font-weight: 800;
-    padding: 0.66rem 1.2rem;
-    box-shadow: 0 12px 30px rgba(23,34,31,0.10);
-}
-.stButton > button:hover {
-    transform: translateY(-1px);
-    border-color: rgba(23,34,31,0.18);
-}
-
-.stDownloadButton > button {
-    border-radius: 14px;
-    border: 1px solid rgba(23,34,31,0.08);
-    background: linear-gradient(135deg, #0f766e, #1c958a);
-    color: white;
-    font-weight: 800;
-}
-
-.stTabs [data-baseweb="tab-list"] {
-    gap: 0.45rem;
-}
-.stTabs [data-baseweb="tab"] {
-    background: rgba(255,255,255,0.72);
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 14px;
-    padding: 0.5rem 0.9rem;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 800;
-    color: var(--ink);
-}
-.stTabs [aria-selected="true"] {
-    background: #17221f !important;
-    color: #fffdf8 !important;
-}
-
-div[data-testid="stExpander"] {
-    border: 1px solid rgba(23,34,31,0.08);
-    border-radius: 18px;
-    background: rgba(255,255,255,0.7);
-    overflow: hidden;
-}
-div[data-testid="stExpander"] details summary {
-    padding: 0.2rem 0.3rem;
-}
-
-.stTextArea textarea,
-.stTextInput input,
-.stSelectbox div[data-baseweb="select"],
-.stMultiSelect div[data-baseweb="select"] {
-    border-radius: 14px !important;
-}
-
-hr {
-    border-color: rgba(23,34,31,0.08) !important;
-}
-
-.small-muted {
-    color: var(--muted);
-    font-size: 0.88rem;
-}
-
-@media (max-width: 1100px) {
-    .ribbon-row, .metrics-grid, .signal-board {
-        grid-template-columns: 1fr 1fr;
+    :root {
+        --bg: #0d0f14;
+        --surface: #151922;
+        --surface-2: #1a1f2a;
+        --ink: #f5f7fb;
+        --muted: #c9d1dc;
+        --line: rgba(246, 196, 83, 0.12);
+        --emerald: #ffd166;
+        --emerald-soft: #2a2416;
+        --gold: #ffbf5f;
+        --gold-soft: #2a2116;
+        --coral: #ff9f5a;
+        --coral-soft: #2b1d15;
+        --navy: #ffd677;
+        --navy-soft: #201c27;
+        --shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
     }
-}
 
-@media (max-width: 760px) {
+    .stApp {
+        background:
+            radial-gradient(circle at 8% 8%, rgba(255,191,95,0.18), transparent 24%),
+            radial-gradient(circle at 86% 10%, rgba(255,159,90,0.12), transparent 24%),
+            linear-gradient(180deg, #0d0f14 0%, #12151c 46%, #171b24 100%);
+        color: var(--ink);
+    }
+
+    html, body, [class*="css"] {
+        font-family: 'DM Sans', sans-serif;
+        color: var(--ink);
+    }
+
+    h1, h2, h3, h4, .display-serif {
+        font-family: 'Fraunces', serif !important;
+        letter-spacing: 0.2px;
+        color: var(--ink);
+    }
+
+    .block-container {
+        max-width: 1380px;
+        padding-top: 1.05rem;
+        padding-bottom: 2rem;
+    }
+
+    .hero {
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(135deg, rgba(24,27,36,0.97), rgba(17,20,28,0.96)),
+            linear-gradient(120deg, #191d26, #10131a);
+        border: 1px solid var(--line);
+        border-radius: 34px;
+        padding: 2.7rem 2.45rem 2.25rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.2rem;
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        right: -110px;
+        top: -150px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,191,95,0.16), transparent 60%);
+    }
+
+    .hero::after {
+        content: "";
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        left: -110px;
+        bottom: -210px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,159,90,0.16), transparent 62%);
+    }
+
+    .hero-row {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 1.8rem;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.42rem 0.82rem;
+        border-radius: 999px;
+        background: rgba(246,196,83,0.10);
+        color: var(--emerald);
+        font-weight: 800;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
     .hero-title {
-        font-size: 2.65rem;
+        margin-top: 0.95rem;
+        font-size: 4rem;
+        line-height: 0.94;
+        max-width: 780px;
     }
-    .ribbon-row, .metrics-grid, .signal-board {
-        grid-template-columns: 1fr;
+
+    .hero-sub {
+        margin-top: 0.9rem;
+        max-width: 710px;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.74;
     }
+
+    .hero-panel {
+        min-width: 300px;
+        max-width: 330px;
+        background: rgba(24,28,37,0.9);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 1.05rem;
+        box-shadow: 0 12px 30px rgba(27,35,44,0.05);
+    }
+
+    .hero-panel-title {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        font-weight: 800;
+    }
+
+    .hero-panel-value {
+        margin-top: 0.28rem;
+        font-size: 1.9rem;
+        font-weight: 800;
+    }
+
+    .hero-panel-note {
+        margin-top: 0.36rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.62;
+    }
+
+    .ribbon-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+        margin: 1rem 0 1.45rem;
+    }
+
+    .ribbon-card {
+        background: rgba(22,26,35,0.92);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 1rem 1rem 0.94rem;
+        box-shadow: 0 10px 26px rgba(27,35,44,0.04);
+    }
+
+    .ribbon-label {
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .ribbon-value {
+        margin-top: 0.3rem;
+        font-size: 1.58rem;
+        font-weight: 800;
+    }
+
+    .ribbon-sub {
+        margin-top: 0.18rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+    }
+
+    .signal-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 1fr 1fr;
+        gap: 1rem;
+        margin: 0.6rem 0 1.55rem;
+    }
+
+    .signal-card {
+        border-radius: 24px;
+        padding: 1.15rem 1.15rem 1rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--line);
+        min-height: 150px;
+    }
+
+    .signal-card.emerald {
+        background: linear-gradient(180deg, #211b12, #16120d);
+    }
+
+    .signal-card.gold {
+        background: linear-gradient(180deg, #261e13, #17120d);
+    }
+
+    .signal-card.coral {
+        background: linear-gradient(180deg, #291d15, #17110c);
+    }
+
+    .signal-kicker {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: rgba(255,255,255,0.72);
+    }
+
+    .signal-title {
+        margin-top: 0.42rem;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .signal-copy {
+        margin-top: 0.45rem;
+        font-size: 0.92rem;
+        line-height: 1.62;
+        color: rgba(255,255,255,0.88);
+    }
+
+    .section-card {
+        background: rgba(22,26,35,0.92);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 1.12rem 1.15rem 1.2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .candidate-card {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(24,27,36,0.98), rgba(17,20,28,0.98));
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 1.2rem 1.25rem 1.15rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .candidate-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 7px;
+        background: linear-gradient(180deg, #ff9f5a, #f6c453);
+    }
+
     .candidate-top {
-        flex-direction: column;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
     }
-}
-</style>
-""", unsafe_allow_html=True)
 
+    .rank-pill {
+        min-width: 82px;
+        text-align: center;
+        background: #0d0f14;
+        color: #f6c453;
+        border-radius: 20px;
+        padding: 0.7rem 0.82rem;
+    }
 
-# ── Helpers ───────────────────────────────────────────────────
+    .rank-pill .k {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.76;
+    }
+
+    .rank-pill .v {
+        display: block;
+        font-size: 1.28rem;
+        font-weight: 800;
+        margin-top: 0.14rem;
+    }
+
+    .candidate-name {
+        font-size: 1.52rem;
+        font-weight: 800;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .candidate-file {
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin-top: 0.18rem;
+    }
+
+    .candidate-headline {
+        margin-top: 0.62rem;
+        color: rgba(255,255,255,0.88);
+        font-size: 0.95rem;
+        line-height: 1.68;
+    }
+
+    .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.46rem;
+        margin: 0.84rem 0 0.72rem;
+    }
+
+    .status-chip, .priority-chip, .soft-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 0.42rem 0.82rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+    }
+
+    .status-shortlisted { background: #231f15; color: #ffd978; border-color: #624b21; }
+    .status-maybe { background: #2a2116; color: #ffcc72; border-color: #6d4e22; }
+    .status-not { background: #2a1c15; color: #ffb96d; border-color: #6c4125; }
+    .priority-high { background: #2b2315; color: #ffd978; }
+    .priority-mid { background: #292115; color: #ffca6c; }
+    .priority-low { background: #251c16; color: #efb36f; }
+    .soft-chip { background: #1b202a; color: #f5f7fb; border-color: rgba(246,196,83,0.10); }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 0.94rem;
+    }
+
+    .metric-mini {
+        background: rgba(29,34,44,0.96);
+        border: 1px solid rgba(246,196,83,0.08);
+        border-radius: 18px;
+        padding: 0.8rem;
+    }
+
+    .metric-mini .label {
+        font-size: 0.72rem;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 800;
+    }
+
+    .metric-mini .value {
+        margin-top: 0.28rem;
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: var(--ink);
+    }
+
+    .score-track {
+        margin-top: 0.84rem;
+        height: 11px;
+        background: #2a2e38;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .score-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #ff9f5a 0%, #f6c453 100%);
+    }
+
+    .score-note {
+        margin-top: 0.4rem;
+        font-size: 0.84rem;
+        color: var(--muted);
+    }
+
+    .section-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        font-weight: 800;
+        margin-bottom: 0.45rem;
+        margin-top: 1rem;
+    }
+
+    .skill-tag, .missing-tag {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 0.3rem 0.72rem;
+        font-size: 0.76rem;
+        margin: 0.18rem;
+        font-weight: 700;
+    }
+
+    .skill-tag {
+        background: #211d15;
+        border: 1px solid #5f4922;
+        color: #ffd978;
+    }
+
+    .missing-tag {
+        background: #2a1d16;
+        border: 1px solid #704426;
+        color: #ffbd73;
+    }
+
+    .priority-banner {
+        background: linear-gradient(90deg, #10131a, #261e13);
+        color: #f5f7fb;
+        border-radius: 18px;
+        padding: 0.92rem 1rem;
+        margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .priority-banner strong {
+        color: #ffd978;
+    }
+
+    .priority-banner span {
+        color: rgba(255,255,255,0.82);
+        font-size: 0.9rem;
+    }
+
+    .table-card {
+        background: rgba(22,26,35,0.92);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .muted-text {
+        color: var(--muted);
+        font-size: 0.89rem;
+    }
+
+    [data-testid="stSidebar"] {
+        background:
+            radial-gradient(circle at top right, rgba(255,191,95,0.18), transparent 28%),
+            linear-gradient(180deg, #0f1117 0%, #141822 62%, #1a1f2a 100%);
+    }
+
+    [data-testid="stSidebar"] * {
+        color: #f5f7fb !important;
+    }
+
+    .stButton > button, .stDownloadButton > button {
+        border-radius: 14px;
+        border: 1px solid rgba(246,196,83,0.18);
+        background: linear-gradient(135deg, #f6c453, #ff9f5a);
+        color: #0d0f14;
+        font-weight: 800;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+    }
+
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.45rem;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        background: rgba(24,27,36,0.95);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0.52rem 0.92rem;
+        font-weight: 800;
+        color: #f5f7fb !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background: #1d2330 !important;
+        color: #ffffff !important;
+        border-color: rgba(246,196,83,0.55) !important;
+        box-shadow: inset 0 0 0 1px rgba(246,196,83,0.35);
+    }
+
+    div[data-testid="stExpander"] {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(22,26,35,0.9);
+        overflow: hidden;
+    }
+
+    .stTextArea textarea,
+    .stTextInput input,
+    .stSelectbox div[data-baseweb="select"],
+    .stMultiSelect div[data-baseweb="select"],
+    .stNumberInput input {
+        background: #141821 !important;
+        color: #f5f7fb !important;
+        border: 1px solid rgba(246,196,83,0.14) !important;
+    }
+
+    .stMarkdown, .stText, p, li, label, span {
+        color: var(--ink);
+    }
+
+    @media (max-width: 1100px) {
+        .ribbon-row, .metrics-grid, .signal-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .hero-title {
+            font-size: 2.7rem;
+        }
+        .ribbon-row, .metrics-grid, .signal-grid {
+            grid-template-columns: 1fr;
+        }
+        .candidate-top {
+            flex-direction: column;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 def status_chip(status: str) -> str:
     if status == "Shortlisted":
@@ -608,21 +599,23 @@ def status_chip(status: str) -> str:
     return '<span class="status-chip status-not">Not Relevant</span>'
 
 
+def priority_chip(priority: str) -> str:
+    mapping = {
+        "High Priority": "priority-high",
+        "Strong Review": "priority-mid",
+        "Hold for Review": "priority-mid",
+        "Low Priority": "priority-low",
+    }
+    cls = mapping.get(priority, "priority-low")
+    return f'<span class="priority-chip {cls}">{priority}</span>'
+
+
 def score_bar(score: float) -> str:
     pct = max(0, min(int(score * 100), 100))
-    return f"""
-    <div class="score-track">
-        <div class="score-fill" style="width:{pct}%;"></div>
-    </div>
-    <div class="score-note">Overall match score: <strong>{pct}%</strong></div>
-    """
-
-
-def skill_tags(skills: list, missing: bool = False, limit: int = 12) -> str:
-    cls = "missing-tag" if missing else "skill-tag"
-    clean = [str(s).strip() for s in skills if str(s).strip()]
-    shown = clean[:limit]
-    return " ".join(f'<span class="{cls}">{s}</span>' for s in shown)
+    return (
+        '<div class="score-track"><div class="score-fill" style="width:'
+        f"{pct}%\"></div></div><div class=\"score-note\">Overall match score: <strong>{pct}%</strong></div>"
+    )
 
 
 def safe_text(value) -> str:
@@ -635,6 +628,12 @@ def safe_text(value) -> str:
 def titleize(value) -> str:
     text = safe_text(value)
     return text.title() if text != "N/A" else text
+
+
+def skill_tags(skills: list, missing: bool = False, limit: int = 12) -> str:
+    cls = "missing-tag" if missing else "skill-tag"
+    clean = [str(s).strip() for s in skills if str(s).strip()]
+    return " ".join(f'<span class="{cls}">{item}</span>' for item in clean[:limit])
 
 
 def hex_to_rgba(hex_color: str, alpha: float = 0.18) -> str:
@@ -651,40 +650,32 @@ def _dl_button(label: str, data: bytes, filename: str, mime: str):
     b64 = base64.b64encode(data).decode()
     href = (
         f'<a href="data:{mime};base64,{b64}" download="{filename}" style="text-decoration:none;">'
-        f'<button style="background:linear-gradient(135deg,#0f766e,#1c958a);color:white;'
-        f'border:none;border-radius:14px;font-family:Manrope,sans-serif;font-weight:800;'
-        f'padding:0.7rem 1.15rem;cursor:pointer;margin:4px;">{label}</button></a>'
+        f'<button style="background:linear-gradient(135deg,#1d2935,#23685d);color:white;'
+        f'border:none;border-radius:14px;font-family:DM Sans,sans-serif;font-weight:800;'
+        f'padding:0.72rem 1.18rem;cursor:pointer;margin:4px;">{label}</button></a>'
     )
     st.markdown(href, unsafe_allow_html=True)
 
 
 def get_priority_label(candidate: CandidateResult) -> str:
-    score = candidate.final_score
-    coverage = candidate.skill_coverage
-    exp = candidate.experience_years
-
-    if score >= 0.82 and coverage >= 65 and exp >= 4:
+    if (
+        candidate.final_score >= PRIORITY_HIGH_SCORE
+        and candidate.skill_coverage >= PRIORITY_HIGH_COVERAGE
+        and candidate.experience_years >= PRIORITY_HIGH_EXP
+    ):
         return "High Priority"
-    if score >= 0.62 and coverage >= 45:
+    if (
+        candidate.final_score >= PRIORITY_MEDIUM_SCORE
+        and candidate.skill_coverage >= PRIORITY_MEDIUM_COVERAGE
+    ):
         return "Strong Review"
-    if score >= 0.45:
+    if candidate.final_score >= MAYBE_THRESHOLD:
         return "Hold for Review"
     return "Low Priority"
 
 
-def priority_chip(priority: str) -> str:
-    mapping = {
-        "High Priority": "priority-high",
-        "Strong Review": "priority-medium",
-        "Hold for Review": "priority-medium",
-        "Low Priority": "priority-low",
-    }
-    cls = mapping.get(priority, "priority-low")
-    return f'<span class="priority-chip {cls}">{priority}</span>'
-
-
 def recommended_action(candidate: CandidateResult) -> str:
-    if candidate.status == "Shortlisted" and candidate.final_score >= 0.8:
+    if candidate.status == "Shortlisted" and candidate.final_score >= 0.80:
         return "Move to recruiter screen"
     if candidate.status == "Shortlisted":
         return "Send to hiring manager"
@@ -693,178 +684,165 @@ def recommended_action(candidate: CandidateResult) -> str:
     return "Archive for now"
 
 
-def recruiter_summary(candidate: CandidateResult) -> str:
-    match_score = int(candidate.final_score * 100)
-    exp = candidate.experience_years
-    coverage = candidate.skill_coverage
-
-    if candidate.status == "Shortlisted":
-        return (
-            f"This profile looks interview-worthy with a {match_score}% match score, "
-            f"{exp} years of experience, and {coverage}% skill coverage."
-        )
-    if candidate.status == "Maybe":
-        return (
-            f"This candidate has some alignment at {match_score}% match, but will need a closer look "
-            f"around gaps and role fit before advancing."
-        )
-    return (
-        f"This profile currently shows limited fit at {match_score}% match. "
-        f"It may be better suited for a different role or future opening."
-    )
-
-
-def top_strengths(candidate: CandidateResult, limit: int = 4) -> list:
-    skills = [s for s in candidate.all_skills_flat if str(s).strip()]
-    strengths = skills[:limit]
-    if candidate.experience_years >= 5:
-        strengths.append("Solid experience level")
-    if candidate.skill_coverage >= 60:
-        strengths.append("Broad JD coverage")
-    seen = []
-    for item in strengths:
-        if item not in seen:
-            seen.append(item)
-    return seen[:limit]
-
-
-def key_risks(candidate: CandidateResult, limit: int = 4) -> list:
-    risks = [s for s in candidate.missing_skills if str(s).strip()][:limit]
-    if candidate.experience_years <= 1:
-        risks.append("Limited hands-on experience")
-    if candidate.status == "Maybe" and len(risks) < limit:
-        risks.append("Needs manager review for closer fit")
-    seen = []
-    for item in risks:
-        if item not in seen:
-            seen.append(item)
-    return seen[:limit]
-
-
 def interview_readiness(candidate: CandidateResult) -> str:
-    if candidate.status == "Shortlisted" and candidate.final_score >= 0.75:
+    if candidate.status == "Shortlisted" and candidate.final_score >= INTERVIEW_READY_SCORE:
         return "Ready now"
     if candidate.status == "Maybe":
         return "Needs closer review"
     return "Not recommended yet"
 
 
+def recruiter_summary(candidate: CandidateResult) -> str:
+    pct = int(candidate.final_score * 100)
+    if candidate.status == "Shortlisted":
+        return (
+            f"This profile looks interview-worthy with a {pct}% match score, "
+            f"{candidate.experience_years} years of experience, and {candidate.skill_coverage}% skill coverage."
+        )
+    if candidate.status == "Maybe":
+        return (
+            f"This candidate has a usable base at {pct}% match, but the slate would benefit from targeted "
+            f"validation around skill gaps and role alignment."
+        )
+    return (
+        f"This profile currently presents limited fit at {pct}% match and is better positioned as an archive "
+        f"or future-role candidate."
+    )
+
+
+def top_strengths(candidate: CandidateResult, limit: int = 4) -> list:
+    strengths = [s for s in candidate.all_skills_flat if str(s).strip()][:limit]
+    if candidate.experience_years >= 5 and "Solid experience level" not in strengths:
+        strengths.append("Solid experience level")
+    if candidate.skill_coverage >= 60 and "Broad JD coverage" not in strengths:
+        strengths.append("Broad JD coverage")
+    return strengths[:limit]
+
+
+def key_risks(candidate: CandidateResult, limit: int = 4) -> list:
+    risks = [s for s in candidate.missing_skills if str(s).strip()][:limit]
+    if candidate.experience_years <= 1 and len(risks) < limit:
+        risks.append("Limited hands-on experience")
+    if candidate.status == "Maybe" and len(risks) < limit:
+        risks.append("Needs manager review for closer fit")
+    return risks[:limit]
+
+
 def candidate_contact_sheet(results: List[CandidateResult]) -> pd.DataFrame:
     rows = []
     for r in results:
-        rows.append({
-            "Rank": r.rank,
-            "Candidate": r.name or r.filename,
-            "Status": r.status,
-            "Priority": get_priority_label(r),
-            "Recommended Action": recommended_action(r),
-            "Email": safe_text(r.email),
-            "Phone": safe_text(r.phone),
-            "LinkedIn": safe_text(r.linkedin),
-            "Experience (Years)": r.experience_years,
-            "Education": titleize(r.education),
-            "Match Score": f"{r.final_score:.0%}",
-        })
+        rows.append(
+            {
+                "Rank": r.rank,
+                "Candidate": r.name or r.filename,
+                "Status": r.status,
+                "Priority": get_priority_label(r),
+                "Recommended Action": recommended_action(r),
+                "Email": safe_text(r.email),
+                "Phone": safe_text(r.phone),
+                "LinkedIn": safe_text(r.linkedin),
+                "Experience (Years)": r.experience_years,
+                "Education": titleize(r.education),
+                "Match Score": f"{r.final_score:.0%}",
+            }
+        )
     return pd.DataFrame(rows)
 
 
 def candidate_table(results: List[CandidateResult]) -> pd.DataFrame:
     rows = []
     for r in results:
-        rows.append({
-            "Rank": r.rank,
-            "Candidate": r.name or r.filename,
-            "Status": r.status,
-            "Priority": get_priority_label(r),
-            "Action": recommended_action(r),
-            "Interview Readiness": interview_readiness(r),
-            "Match Score": f"{r.final_score:.0%}",
-            "Experience": f"{r.experience_years} yrs",
-            "Education": titleize(r.education),
-            "Coverage": f"{r.skill_coverage}%",
-            "Top Skills": ", ".join(r.all_skills_flat[:6]) if r.all_skills_flat else "N/A",
-            "Main Gaps": ", ".join(r.missing_skills[:4]) if r.missing_skills else "None",
-        })
+        rows.append(
+            {
+                "Rank": r.rank,
+                "Candidate": r.name or r.filename,
+                "Status": r.status,
+                "Priority": get_priority_label(r),
+                "Action": recommended_action(r),
+                "Interview Readiness": interview_readiness(r),
+                "Match Score": f"{r.final_score:.0%}",
+                "Experience": f"{r.experience_years} yrs",
+                "Education": titleize(r.education),
+                "Coverage": f"{r.skill_coverage}%",
+                "Top Skills": ", ".join(r.all_skills_flat[:6]) if r.all_skills_flat else "N/A",
+                "Main Gaps": ", ".join(r.missing_skills[:4]) if r.missing_skills else "None",
+            }
+        )
     return pd.DataFrame(rows)
 
 
-# ── Sidebar ───────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## AI Resume Ranker")
     st.markdown(f"**Version {APP_VERSION}**")
     st.markdown("---")
 
     st.markdown("### Recruiter Controls")
-    top_n = st.slider("Show top candidates", 5, 50, 10)
+    top_n = st.slider("Show top candidates", 5, 50, 12)
     filter_status = st.multiselect(
         "Filter by status",
         ["Shortlisted", "Maybe", "Not Relevant"],
-        default=["Shortlisted", "Maybe", "Not Relevant"]
+        default=["Shortlisted", "Maybe", "Not Relevant"],
     )
     min_score = st.slider("Minimum match score", 0.0, 1.0, 0.0, 0.01)
     min_exp = st.slider("Minimum experience (years)", 0, 20, 0)
 
     st.markdown("---")
     st.markdown("### Recruiter Signals")
-    st.markdown(f"- **Shortlisted**: score ≥ `{SHORTLIST_THRESHOLD}`")
-    st.markdown(f"- **Maybe**: score ≥ `{MAYBE_THRESHOLD}`")
-    st.markdown("- **Priority** blends score, skill coverage, and experience")
-    st.markdown("- **Action** suggests the next recruiter move")
+    st.markdown(f"- **Shortlisted**: score >= `{SHORTLIST_THRESHOLD}`")
+    st.markdown(f"- **Maybe**: score >= `{MAYBE_THRESHOLD}`")
+    st.markdown("- **Priority** blends score, coverage, and experience")
+    st.markdown("- **Readiness** helps guide who can move first")
 
     st.markdown("---")
-    st.markdown("### What This Version Adds")
-    st.markdown("""
-- Recruiter brief
-- Priority labels
-- Recommended next actions
-- Contact sheet
-- Save-notes workflow
-- Stronger executive-style design
-""")
+    st.markdown("### Designed For")
+    st.markdown(
+        """
+        - Hiring demos
+        - Recruiter-facing portfolio reviews
+        - Faster shortlist discussions
+        - Cleaner first-pass screening
+        """
+    )
 
 
-# ── Hero ──────────────────────────────────────────────────────
-st.markdown("""
-<div class="hero-shell">
-  <div class="hero-row">
-    <div class="hero-copy">
-      <div class="hero-eyebrow">Recruiter Studio · Candidate Intelligence</div>
-      <div class="hero-title">Screen sharper. Shortlist faster. Present candidates with confidence.</div>
-      <div class="hero-sub">
-        A polished hiring dashboard for turning raw resumes into recruiter-ready decisions,
-        complete with match signals, contact visibility, interview readiness, and decision support.
+st.markdown(
+    """
+    <div class="hero">
+      <div class="hero-row">
+        <div>
+          <div class="eyebrow">Recruiter Intelligence Suite · Executive Screening View</div>
+          <div class="hero-title">Turn raw resumes into a shortlist that feels client-ready.</div>
+          <div class="hero-sub">
+            A sharper front end for first-pass screening: upload resumes, rank them against the role,
+            review recruiter signals, compare candidates side by side, and export a presentation-ready slate.
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-title">Best for</div>
+          <div class="hero-panel-value">Signal-rich screening</div>
+          <div class="hero-panel-note">
+            Preserve the ranking engine underneath, then layer on cleaner hierarchy, stronger recruiter framing,
+            and decision support that makes the product feel more premium.
+          </div>
+        </div>
       </div>
     </div>
-    <div class="hero-panel">
-      <div class="hero-panel-title">Designed for first-pass hiring decisions</div>
-      <div class="hero-panel-value">Signal over noise</div>
-      <div class="hero-panel-note">
-        Keep the ranking logic you already trust, then layer on presentation, recruiter notes,
-        and decision guidance that feels client-ready.
-      </div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
 
-# ── Tabs ──────────────────────────────────────────────────────
-tab_upload, tab_results, tab_brief, tab_analytics, tab_compare, tab_about = st.tabs([
-    "Upload & Rank",
-    "Results",
-    "Recruiter Brief",
-    "Analytics",
-    "Compare",
-    "About"
-])
+tab_upload, tab_results, tab_brief, tab_analytics, tab_compare, tab_about = st.tabs(
+    ["Upload & Rank", "Results", "Recruiter Brief", "Analytics", "Compare", "About"]
+)
 
 
-# ══════════════════════════
-#  TAB 1 – UPLOAD & RANK
-# ══════════════════════════
 with tab_upload:
     st.markdown("## Job Description")
-    st.markdown("<div class='small-muted'>Paste the role brief or upload a `.txt` description to start ranking resumes.</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='muted-text'>Paste the role brief or upload a `.txt` description to start ranking resumes.</div>",
+        unsafe_allow_html=True,
+    )
 
     col_jd, col_ex = st.columns([3, 1])
     with col_jd:
@@ -876,7 +854,7 @@ with tab_upload:
             jd_text = st.text_area(
                 "Job Description",
                 height=240,
-                placeholder="Paste the full job description here — role summary, requirements, must-have skills, and experience..."
+                placeholder="Paste the full job description here — role summary, must-have skills, responsibilities, and experience expectations...",
             )
         else:
             jd_file = st.file_uploader("Upload JD (.txt)", type=["txt"])
@@ -904,7 +882,10 @@ Education: B.Tech / M.Tech in CS, Data Science, or related field.
 """
             st.session_state["jd_text_override"] = jd_text
             st.rerun()
-        st.markdown("<div class='small-muted'>Use the example to demo the dashboard quickly.</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='muted-text'>Use the example when you want a fast walkthrough without preparing a JD file first.</div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.get("jd_text_override"):
@@ -917,14 +898,14 @@ Education: B.Tech / M.Tech in CS, Data Science, or related field.
     uploaded_files = st.file_uploader(
         "Drop PDF / DOCX / TXT resume files here",
         type=["pdf", "docx", "txt"],
-        accept_multiple_files=True
+        accept_multiple_files=True,
     )
 
     if uploaded_files:
         st.success(f"{len(uploaded_files)} file(s) uploaded")
         with st.expander("View uploaded files"):
-            for f in uploaded_files:
-                st.write(f"• {f.name} ({f.size / 1024:.1f} KB)")
+            for item in uploaded_files:
+                st.write(f"• {item.name} ({item.size / 1024:.1f} KB)")
 
     st.markdown("---")
     run_col, _ = st.columns([1, 3])
@@ -938,128 +919,122 @@ Education: B.Tech / M.Tech in CS, Data Science, or related field.
             st.error("Please upload at least one resume.")
         else:
             with tempfile.TemporaryDirectory() as tmpdir:
-                for uf in uploaded_files:
-                    dest = os.path.join(tmpdir, uf.name)
+                for uploaded in uploaded_files:
+                    dest = os.path.join(tmpdir, uploaded.name)
                     with open(dest, "wb") as out:
-                        out.write(uf.read())
+                        out.write(uploaded.read())
 
-                prog_bar = st.progress(0, text="Starting...")
+                prog_bar = st.progress(0, text="Preparing ranking run...")
                 status_txt = st.empty()
 
                 def progress_cb(cur, total, fname):
-                    pct = int(cur / total * 85)
+                    pct = int(cur / total * 88) if total else 0
                     prog_bar.progress(pct, text=f"Processing {fname}...")
                     status_txt.text(f"Analysing {cur}/{total}: {fname}")
 
-                t0 = time.time()
+                started = time.time()
                 results, ignored = rank_resumes(tmpdir, jd_text, progress_callback=progress_cb)
-                elapsed = time.time() - t0
-
-                prog_bar.progress(100, text="Done")
+                elapsed = time.time() - started
+                prog_bar.progress(100, text="Ranking complete")
                 status_txt.empty()
 
             summary = compute_summary(results)
-
             st.session_state["results"] = results
             st.session_state["summary"] = summary
             st.session_state["jd_text"] = jd_text
             st.session_state["ignored"] = ignored
             st.session_state["elapsed"] = elapsed
 
-            st.success(f"Ranked {len(results)} candidate(s) in {elapsed:.2f}s. Open the Results or Recruiter Brief tab.")
-
+            st.success(f"Ranked {len(results)} candidate(s) in {elapsed:.2f}s. Open the Results or Recruiter Brief tab next.")
             if ignored:
                 st.warning(f"Skipped {len(ignored)} file(s): {', '.join(ignored)}")
 
 
-# ══════════════════════════
-#  TAB 2 – RESULTS
-# ══════════════════════════
 with tab_results:
-    if "results" not in st.session_state:
-        st.info("Go to the Upload & Rank tab to get started.")
+    if not st.session_state.get("results"):
+        st.info("Go to Upload & Rank to process resumes.")
     else:
         results: List[CandidateResult] = st.session_state["results"]
-        summary = st.session_state["summary"]
+        summary = st.session_state["summary"] or {}
         jd_text_stored = st.session_state.get("jd_text", "")
-        elapsed = st.session_state.get("elapsed", 0)
+        elapsed = st.session_state.get("elapsed", 0.0)
 
         filtered = [
             r for r in results
-            if r.status in filter_status
-            and r.final_score >= min_score
-            and r.experience_years >= min_exp
+            if r.status in filter_status and r.final_score >= min_score and r.experience_years >= min_exp
         ][:top_n]
 
         shortlisted_count = sum(1 for r in filtered if r.status == "Shortlisted")
         maybe_count = sum(1 for r in filtered if r.status == "Maybe")
-        avg_score = sum(r.final_score for r in filtered) / len(filtered) if filtered else 0
         high_priority = sum(1 for r in filtered if get_priority_label(r) == "High Priority")
+        avg_score = sum(r.final_score for r in filtered) / len(filtered) if filtered else 0
 
-        st.markdown(f"""
-        <div class="ribbon-row">
-          <div class="ribbon-card">
-            <div class="ribbon-label">Candidates in View</div>
-            <div class="ribbon-value">{len(filtered)}</div>
-            <div class="ribbon-sub">Filtered shortlist window</div>
-          </div>
-          <div class="ribbon-card">
-            <div class="ribbon-label">Shortlisted</div>
-            <div class="ribbon-value">{shortlisted_count}</div>
-            <div class="ribbon-sub">Ready to prioritize</div>
-          </div>
-          <div class="ribbon-card">
-            <div class="ribbon-label">High Priority</div>
-            <div class="ribbon-value">{high_priority}</div>
-            <div class="ribbon-sub">Strong score + coverage + experience</div>
-          </div>
-          <div class="ribbon-card">
-            <div class="ribbon-label">Average Match</div>
-            <div class="ribbon-value">{avg_score:.0%}</div>
-            <div class="ribbon-sub">Across visible candidates</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        leader = filtered[0] if filtered else None
-        signal_1 = (
-            f"{leader.name or leader.filename} leads the current slate with a {leader.final_score:.0%} match."
-            if leader else
-            "Upload and rank resumes to generate your lead-candidate insight."
+        st.markdown(
+            f"""
+            <div class="ribbon-row">
+              <div class="ribbon-card">
+                <div class="ribbon-label">Candidates in View</div>
+                <div class="ribbon-value">{len(filtered)}</div>
+                <div class="ribbon-sub">Filtered shortlist window</div>
+              </div>
+              <div class="ribbon-card">
+                <div class="ribbon-label">Shortlisted</div>
+                <div class="ribbon-value">{shortlisted_count}</div>
+                <div class="ribbon-sub">Profiles ready to prioritize</div>
+              </div>
+              <div class="ribbon-card">
+                <div class="ribbon-label">High Priority</div>
+                <div class="ribbon-value">{high_priority}</div>
+                <div class="ribbon-sub">Strong fit across score, coverage, and experience</div>
+              </div>
+              <div class="ribbon-card">
+                <div class="ribbon-label">Average Match</div>
+                <div class="ribbon-value">{avg_score:.0%}</div>
+                <div class="ribbon-sub">Across visible candidates</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
-        signal_2 = (
-            f"{shortlisted_count} profiles are currently recruiter-ready, while {maybe_count} may need manager review."
+
+        lead = filtered[0] if filtered else None
+        lead_signal = (
+            f"{lead.name or lead.filename} leads the current view with a {lead.final_score:.0%} match and "
+            f"{lead.skill_coverage}% coverage."
+            if lead else
+            "Adjust your filters or rank resumes to generate a lead candidate signal."
+        )
+        pipeline_signal = (
+            f"{shortlisted_count} candidates are recruiter-ready and {maybe_count} remain in the review band."
             if filtered else
-            "Status mix will appear here once candidates are ranked."
+            "Pipeline balance will appear here once ranked candidates are visible."
         )
-        signal_3 = (
-            f"Average time to rank this batch: {elapsed:.2f}s."
-            if "elapsed" in st.session_state else
-            "Processing speed signal will appear after ranking."
-        )
+        speed_signal = f"Batch processing time: {elapsed:.2f}s." if elapsed else "Processing speed appears after ranking."
 
-        st.markdown(f"""
-        <div class="signal-board">
-          <div class="signal-card teal">
-            <div class="signal-kicker">Lead Signal</div>
-            <div class="signal-title">Who stands out first</div>
-            <div class="signal-copy">{signal_1}</div>
-          </div>
-          <div class="signal-card gold">
-            <div class="signal-kicker">Pipeline View</div>
-            <div class="signal-title">How the slate stacks up</div>
-            <div class="signal-copy">{signal_2}</div>
-          </div>
-          <div class="signal-card coral">
-            <div class="signal-kicker">Workflow</div>
-            <div class="signal-title">Decision speed</div>
-            <div class="signal-copy">{signal_3}</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div class="signal-grid">
+              <div class="signal-card emerald">
+                <div class="signal-kicker">Lead Signal</div>
+                <div class="signal-title">Who stands out first</div>
+                <div class="signal-copy">{lead_signal}</div>
+              </div>
+              <div class="signal-card gold">
+                <div class="signal-kicker">Pipeline Health</div>
+                <div class="signal-title">How strong the slate looks</div>
+                <div class="signal-copy">{pipeline_signal}</div>
+              </div>
+              <div class="signal-card coral">
+                <div class="signal-kicker">Execution</div>
+                <div class="signal-title">Decision speed</div>
+                <div class="signal-copy">{speed_signal}</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         st.markdown("## Candidate Results")
-
         if not filtered:
             st.warning("No candidates match the current filters.")
         else:
@@ -1071,65 +1046,52 @@ with tab_results:
                 decision_key = f"decision_{r.filename}"
                 default_decision = st.session_state["recruiter_decisions"].get(r.filename, recommended_action(r))
 
-                st.markdown(f"""
-                <div class="candidate-card">
-                  <div class="candidate-top">
-                    <div style="flex:1;">
-                      <div class="candidate-name">{safe_text(r.name) if safe_text(r.name) != "N/A" else r.filename}</div>
-                      <div class="candidate-file">{r.filename}</div>
-                      <div class="candidate-headline">{recruiter_summary(r)}</div>
+                st.markdown(
+                    f"""
+                    <div class="candidate-card">
+                      <div class="candidate-top">
+                        <div style="flex:1;">
+                          <div class="candidate-name">{safe_text(r.name) if safe_text(r.name) != "N/A" else r.filename}</div>
+                          <div class="candidate-file">{r.filename}</div>
+                          <div class="candidate-headline">{recruiter_summary(r)}</div>
 
-                      <div class="chip-row">
-                        {status_chip(r.status)}
-                        {priority_chip(priority)}
-                        <span class="soft-chip">Interview readiness: {interview_readiness(r)}</span>
-                        <span class="soft-chip">Next step: {recommended_action(r)}</span>
-                      </div>
+                          <div class="chip-row">
+                            {status_chip(r.status)}
+                            {priority_chip(priority)}
+                            <span class="soft-chip">Interview readiness: {interview_readiness(r)}</span>
+                            <span class="soft-chip">Next step: {recommended_action(r)}</span>
+                          </div>
 
-                      {score_bar(r.final_score)}
+                          {score_bar(r.final_score)}
 
-                      <div class="metrics-grid">
-                        <div class="metric-mini">
-                          <div class="label">Experience</div>
-                          <div class="value">{r.experience_years} years</div>
+                          <div class="metrics-grid">
+                            <div class="metric-mini"><div class="label">Experience</div><div class="value">{r.experience_years} years</div></div>
+                            <div class="metric-mini"><div class="label">Education</div><div class="value">{titleize(r.education)}</div></div>
+                            <div class="metric-mini"><div class="label">Skill Coverage</div><div class="value">{r.skill_coverage}%</div></div>
+                            <div class="metric-mini"><div class="label">Seniority</div><div class="value">{titleize(r.seniority)}</div></div>
+                          </div>
+
+                          <div class="section-title">Key matched skills</div>
+                          <div>{matched_preview}</div>
+
+                          <div class="section-title">Important missing skills</div>
+                          <div>{missing_preview}</div>
+
+                          <div class="priority-banner">
+                            <strong>Recommended recruiter action: {recommended_action(r)}</strong>
+                            <span>Priority: {priority} · Contact visibility: {"Complete" if r.email or r.phone or r.linkedin else "Limited"}</span>
+                          </div>
                         </div>
-                        <div class="metric-mini">
-                          <div class="label">Education</div>
-                          <div class="value">{titleize(r.education)}</div>
-                        </div>
-                        <div class="metric-mini">
-                          <div class="label">Skill Coverage</div>
-                          <div class="value">{r.skill_coverage}%</div>
-                        </div>
-                        <div class="metric-mini">
-                          <div class="label">Seniority</div>
-                          <div class="value">{titleize(r.seniority)}</div>
-                        </div>
-                      </div>
 
-                      <div class="skill-section">
-                        <div class="section-title">Key matched skills</div>
-                        <div>{matched_preview}</div>
-                      </div>
-
-                      <div class="skill-section">
-                        <div class="section-title">Important missing skills</div>
-                        <div>{missing_preview}</div>
-                      </div>
-
-                      <div class="priority-banner">
-                        <strong>Recommended recruiter action: {recommended_action(r)}</strong>
-                        <span>Priority: {priority} · Contact visibility: {("Complete" if r.email or r.phone or r.linkedin else "Limited")}</span>
+                        <div class="rank-pill">
+                          <span class="k">Rank</span>
+                          <span class="v">#{r.rank}</span>
+                        </div>
                       </div>
                     </div>
-
-                    <div class="rank-pill">
-                      <span class="rk">Rank</span>
-                      <span class="rv">#{r.rank}</span>
-                    </div>
-                  </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """,
+                    unsafe_allow_html=True,
+                )
 
                 with st.expander(f"Open recruiter details for {r.filename}"):
                     d1, d2 = st.columns(2)
@@ -1140,14 +1102,10 @@ with tab_results:
                         st.markdown(f"- Phone: {safe_text(r.phone)}")
                         st.markdown(f"- LinkedIn: {safe_text(r.linkedin)}")
                         st.markdown(f"- GitHub: {safe_text(r.github)}")
-
-                        strengths = top_strengths(r)
                         st.markdown("**Top strengths**")
-                        if strengths:
-                            for item in strengths:
-                                st.markdown(f"- {item}")
-                        else:
-                            st.markdown("- No standout strengths surfaced")
+                        strengths = top_strengths(r)
+                        for item in strengths or ["No standout strengths surfaced"]:
+                            st.markdown(f"- {item}")
 
                     with d2:
                         st.markdown("**Decision support**")
@@ -1155,51 +1113,32 @@ with tab_results:
                         st.markdown(f"- Interview Readiness: {interview_readiness(r)}")
                         st.markdown(f"- Priority: {priority}")
                         st.markdown(f"- Suggested Action: {recommended_action(r)}")
-
-                        risks = key_risks(r)
                         st.markdown("**Risks / gaps**")
-                        if risks:
-                            for item in risks:
-                                st.markdown(f"- {item}")
-                        else:
-                            st.markdown("- No major risks surfaced")
+                        risks = key_risks(r)
+                        for item in risks or ["No major risks surfaced"]:
+                            st.markdown(f"- {item}")
 
                     if r.matched_skills:
                         st.markdown("**Matched skills by area**")
-                        for grp, skills in r.matched_skills.items():
-                            clean_skills = [s for s in skills if str(s).strip()]
-                            if clean_skills:
-                                st.markdown(f"- **{grp}:** {', '.join(clean_skills)}")
+                        for group, skills in r.matched_skills.items():
+                            clean = [item for item in skills if str(item).strip()]
+                            if clean:
+                                st.markdown(f"- **{group}:** {', '.join(clean)}")
 
                     decision_value = st.selectbox(
                         "Recruiter decision",
-                        [
-                            "Move to recruiter screen",
-                            "Send to hiring manager",
-                            "Keep in backup pipeline",
-                            "Archive for now"
-                        ],
-                        index=[
-                            "Move to recruiter screen",
-                            "Send to hiring manager",
-                            "Keep in backup pipeline",
-                            "Archive for now"
-                        ].index(default_decision if default_decision in [
-                            "Move to recruiter screen",
-                            "Send to hiring manager",
-                            "Keep in backup pipeline",
-                            "Archive for now"
-                        ] else "Archive for now"),
-                        key=decision_key
+                        RECRUITER_DECISIONS,
+                        index=RECRUITER_DECISIONS.index(default_decision) if default_decision in RECRUITER_DECISIONS else 0,
+                        key=decision_key,
                     )
                     st.session_state["recruiter_decisions"][r.filename] = decision_value
 
                     note_value = st.text_area(
                         "Recruiter notes",
                         value=st.session_state["recruiter_notes"].get(r.filename, ""),
-                        placeholder="Add interview notes, talking points, or concerns...",
+                        placeholder="Add interview notes, talking points, concerns, or follow-up guidance...",
                         height=120,
-                        key=note_key
+                        key=note_key,
                     )
                     st.session_state["recruiter_notes"][r.filename] = note_value
 
@@ -1212,12 +1151,12 @@ with tab_results:
             json_path = export_json(results, summary, os.path.join(tdir, "ranking_results.json"))
             txt_path = export_txt_report(results, summary, jd_text_stored, os.path.join(tdir, "ranking_report.txt"))
 
-            with open(csv_path, "rb") as f:
-                csv_bytes = f.read()
-            with open(json_path, "rb") as f:
-                json_bytes = f.read()
-            with open(txt_path, "rb") as f:
-                txt_bytes = f.read()
+            with open(csv_path, "rb") as handle:
+                csv_bytes = handle.read()
+            with open(json_path, "rb") as handle:
+                json_bytes = handle.read()
+            with open(txt_path, "rb") as handle:
+                txt_bytes = handle.read()
 
         with ec1:
             _dl_button("Download CSV", csv_bytes, "ranked_resumes.csv", "text/csv")
@@ -1227,11 +1166,8 @@ with tab_results:
             _dl_button("Download Report", txt_bytes, "ranking_report.txt", "text/plain")
 
 
-# ══════════════════════════
-#  TAB 3 – RECRUITER BRIEF
-# ══════════════════════════
 with tab_brief:
-    if "results" not in st.session_state:
+    if not st.session_state.get("results"):
         st.info("Run the ranking first to generate the recruiter brief.")
     else:
         results: List[CandidateResult] = st.session_state["results"]
@@ -1240,118 +1176,123 @@ with tab_brief:
         lead = results[0] if results else None
 
         st.markdown("## Recruiter Brief")
-        st.markdown("<div class='small-muted'>A presentation-ready hiring summary built from the ranked slate.</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='muted-text'>A presentation-ready hiring summary built from the ranked slate.</div>",
+            unsafe_allow_html=True,
+        )
 
         top_names = ", ".join([(r.name or r.filename) for r in results[:3]]) if results else "N/A"
         lead_line = (
             f"Top recommendation: {lead.name or lead.filename} at {lead.final_score:.0%} match."
-            if lead else
-            "No lead candidate yet."
+            if lead else "No lead candidate yet."
         )
         shortlist_line = f"{len(shortlist)} candidate(s) are currently shortlisted and {len(maybes)} are in the review band."
         risk_count = sum(1 for r in results[:5] if len(r.missing_skills) >= 5)
         risk_line = f"{risk_count} of the top 5 profiles show notable capability gaps that should be probed in screening."
 
-        st.markdown(f"""
-        <div class="signal-board">
-          <div class="signal-card teal">
-            <div class="signal-kicker">Executive Summary</div>
-            <div class="signal-title">Top slate snapshot</div>
-            <div class="signal-copy">{lead_line}<br><br>Top visible names: {top_names}</div>
-          </div>
-          <div class="signal-card gold">
-            <div class="signal-kicker">Pipeline Quality</div>
-            <div class="signal-title">Who can move now</div>
-            <div class="signal-copy">{shortlist_line}</div>
-          </div>
-          <div class="signal-card coral">
-            <div class="signal-kicker">Attention Area</div>
-            <div class="signal-title">What needs probing</div>
-            <div class="signal-copy">{risk_line}</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div class="signal-grid">
+              <div class="signal-card emerald">
+                <div class="signal-kicker">Executive Summary</div>
+                <div class="signal-title">Top slate snapshot</div>
+                <div class="signal-copy">{lead_line}<br><br>Top visible names: {top_names}</div>
+              </div>
+              <div class="signal-card gold">
+                <div class="signal-kicker">Pipeline Quality</div>
+                <div class="signal-title">Who can move now</div>
+                <div class="signal-copy">{shortlist_line}</div>
+              </div>
+              <div class="signal-card coral">
+                <div class="signal-kicker">Attention Area</div>
+                <div class="signal-title">What needs probing</div>
+                <div class="signal-copy">{risk_line}</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        if results:
-            top3 = results[:3]
-            for idx, cand in enumerate(top3, start=1):
-                st.markdown(f"""
+        for idx, candidate in enumerate(results[:3], start=1):
+            st.markdown(
+                f"""
                 <div class="section-card" style="margin-bottom:1rem;">
                   <div class="section-title">Top {idx} candidate spotlight</div>
-                  <h3 style="margin:0.1rem 0 0.6rem 0;">{cand.name or cand.filename}</h3>
-                  <div class="small-muted">{recruiter_summary(cand)}</div>
+                  <h3 style="margin:0.1rem 0 0.6rem 0;">{candidate.name or candidate.filename}</h3>
+                  <div class="muted-text">{recruiter_summary(candidate)}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+                unsafe_allow_html=True,
+            )
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Match Score", f"{candidate.final_score:.0%}")
+            c2.metric("Experience", f"{candidate.experience_years} yrs")
+            c3.metric("Coverage", f"{candidate.skill_coverage}%")
 
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Match Score", f"{cand.final_score:.0%}")
-                c2.metric("Experience", f"{cand.experience_years} yrs")
-                c3.metric("Coverage", f"{cand.skill_coverage}%")
-
-                strengths = top_strengths(cand, limit=5)
-                risks = key_risks(cand, limit=5)
-
-                left, right = st.columns(2)
-                with left:
-                    st.markdown("**What stands out**")
-                    for item in strengths:
-                        st.markdown(f"- {item}")
-                with right:
-                    st.markdown("**What to validate in screening**")
-                    for item in risks:
-                        st.markdown(f"- {item}")
+            left, right = st.columns(2)
+            with left:
+                st.markdown("**What stands out**")
+                for item in top_strengths(candidate, limit=5):
+                    st.markdown(f"- {item}")
+            with right:
+                st.markdown("**What to validate in screening**")
+                for item in key_risks(candidate, limit=5):
+                    st.markdown(f"- {item}")
 
         st.markdown("---")
         st.markdown("## Recruiter Contact Sheet")
         sheet_df = candidate_contact_sheet(results)
         st.markdown('<div class="table-card">', unsafe_allow_html=True)
         st.dataframe(sheet_df, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        brief_lines = []
-        for r in results[:10]:
-            brief_lines.append({
-                "Rank": r.rank,
-                "Candidate": r.name or r.filename,
-                "Status": r.status,
-                "Priority": get_priority_label(r),
-                "Action": st.session_state["recruiter_decisions"].get(r.filename, recommended_action(r)),
-                "Notes": st.session_state["recruiter_notes"].get(r.filename, "")
-            })
-        notes_df = pd.DataFrame(brief_lines)
+        log_rows = []
+        for candidate in results[:10]:
+            log_rows.append(
+                {
+                    "Rank": candidate.rank,
+                    "Candidate": candidate.name or candidate.filename,
+                    "Status": candidate.status,
+                    "Priority": get_priority_label(candidate),
+                    "Action": st.session_state["recruiter_decisions"].get(candidate.filename, recommended_action(candidate)),
+                    "Notes": st.session_state["recruiter_notes"].get(candidate.filename, ""),
+                }
+            )
+        log_df = pd.DataFrame(log_rows)
         st.markdown("## Recruiter Decision Log")
         st.markdown('<div class="table-card">', unsafe_allow_html=True)
-        st.dataframe(notes_df, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.dataframe(log_df, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ══════════════════════════
-#  TAB 4 – ANALYTICS
-# ══════════════════════════
 with tab_analytics:
-    if "results" not in st.session_state:
+    if not st.session_state.get("results"):
         st.info("Run the ranking first.")
     else:
         results: List[CandidateResult] = st.session_state["results"]
 
         st.markdown("## Hiring Analytics")
 
-        df = pd.DataFrame([{
-            "Candidate": r.filename,
-            "Name": r.name or r.filename,
-            "Score": r.final_score,
-            "Status": r.status,
-            "Seniority": r.seniority,
-            "Education": titleize(r.education),
-            "Experience": r.experience_years,
-            "Coverage %": r.skill_coverage,
-            "Skills Count": len(r.all_skills_flat),
-            "Priority": get_priority_label(r),
-        } for r in results])
+        df = pd.DataFrame(
+            [
+                {
+                    "Candidate": r.filename,
+                    "Name": r.name or r.filename,
+                    "Score": r.final_score,
+                    "Status": r.status,
+                    "Seniority": r.seniority,
+                    "Education": titleize(r.education),
+                    "Experience": r.experience_years,
+                    "Coverage %": r.skill_coverage,
+                    "Skills Count": len(r.all_skills_flat),
+                    "Priority": get_priority_label(r),
+                }
+                for r in results
+            ]
+        )
 
-        col_a, col_b = st.columns(2)
-
-        with col_a:
+        c1, c2 = st.columns(2)
+        with c1:
             fig1 = px.bar(
                 df.head(15),
                 x="Score",
@@ -1360,24 +1301,24 @@ with tab_analytics:
                 color="Status",
                 color_discrete_map={
                     "Shortlisted": "#0f766e",
-                    "Maybe": "#c48a2c",
-                    "Not Relevant": "#b94f37"
+                    "Maybe": "#bc862f",
+                    "Not Relevant": "#b6554d",
                 },
                 title="Top Candidate Match Scores",
-                template="simple_white"
+                template="simple_white",
             )
             fig1.update_layout(
                 plot_bgcolor="rgba(255,255,255,0)",
                 paper_bgcolor="rgba(255,255,255,0)",
-                font_family="Manrope",
+                font_family="DM Sans",
                 yaxis=dict(autorange="reversed"),
-                title_font=dict(family="Instrument Serif", size=20),
+                title_font=dict(family="Fraunces", size=20),
                 xaxis_tickformat=".0%",
-                legend_title_text=""
+                legend_title_text="",
             )
             st.plotly_chart(fig1, use_container_width=True)
 
-        with col_b:
+        with c2:
             status_counts = df["Status"].value_counts().reset_index()
             status_counts.columns = ["Status", "Count"]
             fig2 = px.pie(
@@ -1387,25 +1328,24 @@ with tab_analytics:
                 color="Status",
                 color_discrete_map={
                     "Shortlisted": "#0f766e",
-                    "Maybe": "#c48a2c",
-                    "Not Relevant": "#b94f37"
+                    "Maybe": "#bc862f",
+                    "Not Relevant": "#b6554d",
                 },
                 title="Status Distribution",
-                hole=0.55,
-                template="simple_white"
+                hole=0.58,
+                template="simple_white",
             )
             fig2.update_layout(
                 plot_bgcolor="rgba(255,255,255,0)",
                 paper_bgcolor="rgba(255,255,255,0)",
-                font_family="Manrope",
-                title_font=dict(family="Instrument Serif", size=20),
-                legend_title_text=""
+                font_family="DM Sans",
+                title_font=dict(family="Fraunces", size=20),
+                legend_title_text="",
             )
             st.plotly_chart(fig2, use_container_width=True)
 
-        col_c, col_d = st.columns(2)
-
-        with col_c:
+        c3, c4 = st.columns(2)
+        with c3:
             fig3 = px.scatter(
                 df,
                 x="Experience",
@@ -1415,48 +1355,48 @@ with tab_analytics:
                 hover_name="Name",
                 color_discrete_map={
                     "High Priority": "#0f766e",
-                    "Strong Review": "#c48a2c",
-                    "Hold for Review": "#d0a050",
-                    "Low Priority": "#b94f37",
+                    "Strong Review": "#bc862f",
+                    "Hold for Review": "#d2a051",
+                    "Low Priority": "#b6554d",
                 },
                 title="Experience vs Match Score",
-                template="simple_white"
+                template="simple_white",
             )
             fig3.update_layout(
                 plot_bgcolor="rgba(255,255,255,0)",
                 paper_bgcolor="rgba(255,255,255,0)",
-                font_family="Manrope",
-                title_font=dict(family="Instrument Serif", size=20),
+                font_family="DM Sans",
+                title_font=dict(family="Fraunces", size=20),
                 yaxis_tickformat=".0%",
-                legend_title_text=""
+                legend_title_text="",
             )
             st.plotly_chart(fig3, use_container_width=True)
 
-        with col_d:
+        with c4:
             fig4 = px.histogram(
                 df,
                 x="Coverage %",
                 nbins=10,
                 title="Skill Coverage Distribution",
                 template="simple_white",
-                color_discrete_sequence=["#1e334d"]
+                color_discrete_sequence=["#183b60"],
             )
             fig4.update_layout(
                 plot_bgcolor="rgba(255,255,255,0)",
                 paper_bgcolor="rgba(255,255,255,0)",
-                font_family="Manrope",
-                title_font=dict(family="Instrument Serif", size=20)
+                font_family="DM Sans",
+                title_font=dict(family="Fraunces", size=20),
             )
             st.plotly_chart(fig4, use_container_width=True)
 
         st.markdown("### Most Common Skills Across Resumes")
-        all_skills_counter = Counter()
-        for r in results:
-            for s in r.all_skills_flat:
-                all_skills_counter[s] += 1
+        counter = Counter()
+        for result in results:
+            for skill in result.all_skills_flat:
+                counter[skill] += 1
 
-        if all_skills_counter:
-            skill_df = pd.DataFrame(all_skills_counter.most_common(20), columns=["Skill", "Count"])
+        if counter:
+            skill_df = pd.DataFrame(counter.most_common(20), columns=["Skill", "Count"])
             fig5 = px.bar(
                 skill_df,
                 x="Count",
@@ -1465,97 +1405,91 @@ with tab_analytics:
                 title="Top 20 Skills Found",
                 template="simple_white",
                 color="Count",
-                color_continuous_scale=["#dfe7f1", "#1e334d"]
+                color_continuous_scale=["#e4edf7", "#183b60"],
             )
             fig5.update_layout(
                 plot_bgcolor="rgba(255,255,255,0)",
                 paper_bgcolor="rgba(255,255,255,0)",
-                font_family="Manrope",
-                title_font=dict(family="Instrument Serif", size=20),
+                font_family="DM Sans",
+                title_font=dict(family="Fraunces", size=20),
                 yaxis=dict(autorange="reversed"),
-                coloraxis_showscale=False
+                coloraxis_showscale=False,
             )
             st.plotly_chart(fig5, use_container_width=True)
 
         st.markdown("### Candidate Summary Table")
-        display_df = candidate_table(results)
         st.markdown('<div class="table-card">', unsafe_allow_html=True)
-        st.dataframe(display_df, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.dataframe(candidate_table(results), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ══════════════════════════
-#  TAB 5 – COMPARE
-# ══════════════════════════
 with tab_compare:
-    if "results" not in st.session_state:
+    if not st.session_state.get("results"):
         st.info("Run the ranking first.")
     else:
         results: List[CandidateResult] = st.session_state["results"]
-
         st.markdown("## Candidate Comparison")
 
         names = [r.filename for r in results]
         sel_a = st.selectbox("Candidate A", names, index=0)
         sel_b = st.selectbox("Candidate B", names, index=min(1, len(names) - 1))
 
-        ca = next(r for r in results if r.filename == sel_a)
-        cb = next(r for r in results if r.filename == sel_b)
+        candidate_a = next(r for r in results if r.filename == sel_a)
+        candidate_b = next(r for r in results if r.filename == sel_b)
 
-        col_ca, col_cb = st.columns(2)
+        def show_candidate_panel(column, candidate: CandidateResult):
+            with column:
+                st.markdown('<div class="section-card">', unsafe_allow_html=True)
+                st.markdown(f"### {candidate.name or candidate.filename}")
+                st.markdown(f"**Status:** {candidate.status}")
+                st.metric("Match Score", f"{candidate.final_score:.0%}")
+                st.metric("Experience", f"{candidate.experience_years} yrs")
+                st.metric("Skill Coverage", f"{candidate.skill_coverage}%")
+                st.markdown(f"**Education:** {titleize(candidate.education)}")
+                st.markdown(f"**Seniority:** {titleize(candidate.seniority)}")
+                st.markdown(f"**Priority:** {get_priority_label(candidate)}")
+                st.markdown(f"**Action:** {recommended_action(candidate)}")
+                st.markdown(f"**Email:** {safe_text(candidate.email)}")
+                st.markdown(f"**Phone:** {safe_text(candidate.phone)}")
+                st.markdown(f"**LinkedIn:** {safe_text(candidate.linkedin)}")
+                st.markdown("</div>", unsafe_allow_html=True)
 
-        def show_candidate_panel(col, c: CandidateResult):
-            with col:
-                st.markdown(f'<div class="section-card">', unsafe_allow_html=True)
-                st.markdown(f"### {c.name or c.filename}")
-                st.markdown(f"**Status:** {c.status}")
-                st.metric("Match Score", f"{c.final_score:.0%}")
-                st.metric("Experience", f"{c.experience_years} yrs")
-                st.metric("Skill Coverage", f"{c.skill_coverage}%")
-                st.markdown(f"**Education:** {titleize(c.education)}")
-                st.markdown(f"**Seniority:** {titleize(c.seniority)}")
-                st.markdown(f"**Priority:** {get_priority_label(c)}")
-                st.markdown(f"**Action:** {recommended_action(c)}")
-                st.markdown(f"**Email:** {safe_text(c.email)}")
-                st.markdown(f"**Phone:** {safe_text(c.phone)}")
-                st.markdown(f"**LinkedIn:** {safe_text(c.linkedin)}")
-                st.markdown('</div>', unsafe_allow_html=True)
-
-        show_candidate_panel(col_ca, ca)
-        show_candidate_panel(col_cb, cb)
+        col_a, col_b = st.columns(2)
+        show_candidate_panel(col_a, candidate_a)
+        show_candidate_panel(col_b, candidate_b)
 
         categories = ["Match Score", "Skill Coverage", "Experience (norm)"]
-        def norm_exp(e):
-            return min(e / 15, 1.0)
+
+        def norm_exp(value):
+            return min(value / 15, 1.0)
 
         fig_radar = go.Figure()
-        for c, color in [(ca, "#0f766e"), (cb, "#c48a2c")]:
-            vals = [c.final_score, c.skill_coverage / 100, norm_exp(c.experience_years)]
-            fig_radar.add_trace(go.Scatterpolar(
-                r=vals + [vals[0]],
-                theta=categories + [categories[0]],
-                fill="toself",
-                name=c.name or c.filename,
-                line_color=color,
-                fillcolor=hex_to_rgba(color, 0.18)
-            ))
+        for candidate, color in [(candidate_a, "#0f766e"), (candidate_b, "#bc862f")]:
+            vals = [candidate.final_score, candidate.skill_coverage / 100, norm_exp(candidate.experience_years)]
+            fig_radar.add_trace(
+                go.Scatterpolar(
+                    r=vals + [vals[0]],
+                    theta=categories + [categories[0]],
+                    fill="toself",
+                    name=candidate.name or candidate.filename,
+                    line_color=color,
+                    fillcolor=hex_to_rgba(color, 0.18),
+                )
+            )
 
         fig_radar.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 1]),
-                bgcolor="rgba(255,255,255,0)"
-            ),
+            polar=dict(radialaxis=dict(visible=True, range=[0, 1]), bgcolor="rgba(255,255,255,0)"),
             showlegend=True,
             template="simple_white",
             paper_bgcolor="rgba(255,255,255,0)",
             title="Candidate Comparison Radar",
-            title_font=dict(family="Instrument Serif", size=22),
-            font=dict(family="Manrope")
+            title_font=dict(family="Fraunces", size=22),
+            font=dict(family="DM Sans"),
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
-        set_a = set(ca.all_skills_flat)
-        set_b = set(cb.all_skills_flat)
+        set_a = set(candidate_a.all_skills_flat)
+        set_b = set(candidate_b.all_skills_flat)
         shared = set_a & set_b
         only_a = set_a - set_b
         only_b = set_b - set_a
@@ -1563,42 +1497,40 @@ with tab_compare:
         s1, s2, s3 = st.columns(3)
         with s1:
             st.markdown('<div class="section-card">', unsafe_allow_html=True)
-            st.markdown(f"**Only in {ca.name or ca.filename}**")
-            for s in sorted(only_a)[:20]:
-                st.markdown(f"- {s}")
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"**Only in {candidate_a.name or candidate_a.filename}**")
+            for item in sorted(only_a)[:20]:
+                st.markdown(f"- {item}")
+            st.markdown("</div>", unsafe_allow_html=True)
         with s2:
             st.markdown('<div class="section-card">', unsafe_allow_html=True)
             st.markdown("**Shared Skills**")
-            for s in sorted(shared)[:20]:
-                st.markdown(f"- {s}")
-            st.markdown('</div>', unsafe_allow_html=True)
+            for item in sorted(shared)[:20]:
+                st.markdown(f"- {item}")
+            st.markdown("</div>", unsafe_allow_html=True)
         with s3:
             st.markdown('<div class="section-card">', unsafe_allow_html=True)
-            st.markdown(f"**Only in {cb.name or cb.filename}**")
-            for s in sorted(only_b)[:20]:
-                st.markdown(f"- {s}")
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"**Only in {candidate_b.name or candidate_b.filename}**")
+            for item in sorted(only_b)[:20]:
+                st.markdown(f"- {item}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ══════════════════════════
-#  TAB 6 – ABOUT
-# ══════════════════════════
 with tab_about:
-    st.markdown("""
-## About AI Resume Ranker
+    st.markdown(
+        """
+        ## About AI Resume Ranker
 
-This version keeps your ranking workflow intact while making the experience feel more like a recruiter-facing product than a technical demo.
+        This version keeps your ranking workflow intact while upgrading the interface into something that feels more recruiter-facing and presentation-ready.
 
-### What was added
-- A redesigned visual system with a more editorial, premium feel
-- Recruiter-ready candidate cards with clearer hierarchy
-- Priority labels and recommended next actions
-- Recruiter Brief tab for top-slate storytelling
-- Recruiter notes and decision tracking
-- Contact sheet and decision log views
-- Cleaner analytics focused on hiring decisions
+        What changed:
+        - Stronger visual hierarchy with a warmer executive editorial style
+        - Cleaner candidate cards with clearer recruiter cues
+        - Better framing for shortlist, priority, readiness, and next steps
+        - A sharper recruiter brief for top-slate storytelling
+        - More polished analytics and comparison surfaces
+        - Decision logging that fits portfolio and demo use
 
-### Best use
-Use it as a first-pass screening dashboard, then hand the shortlist to hiring managers with stronger context and cleaner presentation.
-""")
+        Best use:
+        Run ranking in front of a recruiter, interviewer, or reviewer and walk them from upload through shortlist and recommendation without the UI feeling like a rough technical prototype.
+        """
+    )
