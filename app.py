@@ -44,7 +44,7 @@ SAMPLE_RESUME_CANDIDATES = [
 
 st.set_page_config(
     page_title="AI Resume Ranker",
-    page_icon="🎯",
+    page_icon="assets/favicon.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
