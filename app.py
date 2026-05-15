@@ -1,5 +1,5 @@
 # ============================================================
-#   app.py  –  Streamlit Web App  |  AI Resume Ranker v4.0
+#   app.py  –  Streamlit Web App  |  AI Resume Ranker 
 #   Run:  streamlit run app.py
 # ============================================================
 
@@ -838,7 +838,6 @@ def candidate_table(results: List[CandidateResult]) -> pd.DataFrame:
 
 with st.sidebar:
     st.markdown("## AI Resume Ranker")
-    st.markdown(f"**Version {APP_VERSION}**")
     st.markdown("---")
 
     st.markdown("### Recruiter Controls")
