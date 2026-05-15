@@ -1,0 +1,37 @@
+RHEA MALHOTRA
+Senior Machine Learning Engineer
+Chennai | rhea.malhotra@inboxlab.dev | +91 89326 96662
+LinkedIn: linkedin.com/in/rhea-malhotra | GitHub: github.com/rheamalhotra
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 5+ years of experience. Growth-minded
+builder known for balancing execution speed with quality, stakeholder trust, and user
+impact. Known for fast execution, decision-making under ambiguity, mentoring ability. Brings
+polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+Kubernetes, CI/CD, Monitoring, Python, Model Deployment, FastAPI
+
+TOOLS & PLATFORMS
+Grafana, GCP, Airflow, MLflow
+
+CAREER HIGHLIGHTS
+- Senior Engineer at CrestIQ: Optimized a model serving platform initiative that boosted stakeholder visibility by 27% for a customer-facing product.
+- Senior Engineer at BlueOrbit: Built a model serving platform initiative that raised user satisfaction by 37% while improving operational visibility.
+- Senior Associate at QuantNest: Automated a real-time recommendation engine initiative that saved 62+ hours per month for a customer-facing product.
+
+SELECTED PROJECTS
+- Fraud Detection Api — cut manual effort by 51% while balancing speed, quality, and maintainability.
+- Document Understanding Service — reduced processing time by 58% through strong execution and clear documentation.
+- Inference Optimization Pipeline — saved 67+ hours per month with close stakeholder alignment and iterative delivery.
+
+STRENGTHS
+- Fast Execution
+- Decision-Making Under Ambiguity
+- Mentoring Ability
+
+EDUCATION
+MBA — BITS Pilani
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

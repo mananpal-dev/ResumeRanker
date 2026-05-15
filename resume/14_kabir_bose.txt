@@ -1,0 +1,37 @@
+KABIR BOSE
+Junior Machine Learning Engineer
+Chennai | kabir.bose@careergrid.dev | +91 73738 18564
+LinkedIn: linkedin.com/in/kabir-bose | GitHub: github.com/kabirbose
+
+PROFESSIONAL SUMMARY
+Junior Machine Learning Engineer based in India with 1+ years of experience. Execution-
+focused contributor who thrives in fast-moving teams and consistently turns ideas into
+dependable delivery. Known for documentation discipline, decision-making under ambiguity,
+structured problem solving. Brings polished communication, business alignment, and high-
+trust delivery.
+
+CORE SKILLS
+PyTorch, Model Deployment, MLOps, FastAPI, Monitoring, Feature Engineering
+
+TOOLS & PLATFORMS
+Airflow, Redis, GCP
+
+CAREER HIGHLIGHTS
+- Junior Engineer at LatticeFox: Built a model serving platform initiative that increased conversion by 69% while improving operational visibility.
+- Junior Engineer at MintBridge: Launched a real-time recommendation engine initiative that cut manual effort by 66% within a fast-scaling environment.
+
+SELECTED PROJECTS
+- Inference Optimization Pipeline — saved 48+ hours per month while balancing speed, quality, and maintainability.
+- Model Serving Platform — improved model accuracy by 57% while balancing speed, quality, and maintainability.
+- Document Understanding Service — improved model accuracy by 56% through strong execution and clear documentation.
+
+STRENGTHS
+- Documentation Discipline
+- Decision-Making Under Ambiguity
+- Structured Problem Solving
+
+EDUCATION
+B.E. — NIT Trichy
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

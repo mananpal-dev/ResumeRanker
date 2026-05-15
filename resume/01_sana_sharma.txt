@@ -1,0 +1,37 @@
+SANA SHARMA
+Senior Machine Learning Engineer
+Gurugram | sana.sharma@careergrid.dev | +91 81149 46421
+LinkedIn: linkedin.com/in/sana-sharma | GitHub: github.com/sanasharma
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 6+ years of experience. Growth-minded
+builder known for balancing execution speed with quality, stakeholder trust, and user
+impact. Known for structured problem solving, documentation discipline, fast execution.
+Brings polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+CI/CD, Model Deployment, Kubernetes, FastAPI, Python, SQL, Docker
+
+TOOLS & PLATFORMS
+Airflow, Redis, MLflow, Prometheus, AWS
+
+CAREER HIGHLIGHTS
+- Senior Associate at Northscale: Led a real-time recommendation engine initiative that saved 24+ hours per month for a customer-facing product.
+- Senior Analyst at CrestIQ: Improved a real-time recommendation engine initiative that boosted stakeholder visibility by 47% while improving operational visibility.
+- Senior Consultant at Verity Labs: Led a inference optimization pipeline initiative that improved model accuracy by 71% while improving operational visibility.
+
+SELECTED PROJECTS
+- Document Understanding Service — reduced processing time by 22% using practical prioritization and measurable experimentation.
+- Model Serving Platform — raised user satisfaction by 38% through strong execution and clear documentation.
+- Inference Optimization Pipeline — raised user satisfaction by 34% through strong execution and clear documentation.
+
+STRENGTHS
+- Structured Problem Solving
+- Documentation Discipline
+- Fast Execution
+
+EDUCATION
+B.E. — IIT Delhi
+
+CERTIFICATIONS
+- Databricks ML Associate

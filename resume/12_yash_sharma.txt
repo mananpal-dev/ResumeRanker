@@ -1,0 +1,36 @@
+YASH SHARMA
+Junior Machine Learning Engineer
+Gurugram | yash.sharma@careergrid.dev | +91 90826 70258
+LinkedIn: linkedin.com/in/yash-sharma | GitHub: github.com/yashsharma
+
+PROFESSIONAL SUMMARY
+Junior Machine Learning Engineer based in India with 1+ years of experience. Growth-minded
+builder known for balancing execution speed with quality, stakeholder trust, and user
+impact. Known for ownership mindset, mentoring ability, clear stakeholder communication.
+Brings polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+CI/CD, Kubernetes, TensorFlow, Feature Engineering, PyTorch, Docker, Python
+
+TOOLS & PLATFORMS
+Airflow, GCP, Redis, AWS, Prometheus
+
+CAREER HIGHLIGHTS
+- Junior Specialist at CrestIQ: Optimized a document understanding service initiative that cut manual effort by 69% while improving operational visibility.
+- Junior Consultant at BrightLayer: Designed a inference optimization pipeline initiative that improved model accuracy by 38% for internal stakeholders.
+
+SELECTED PROJECTS
+- Real-Time Recommendation Engine — increased conversion by 68% while balancing speed, quality, and maintainability.
+- Document Understanding Service — cut manual effort by 59% while balancing speed, quality, and maintainability.
+- Model Serving Platform — improved model accuracy by 21% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Ownership Mindset
+- Mentoring Ability
+- Clear Stakeholder Communication
+
+EDUCATION
+MBA — Manipal Institute of Technology
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

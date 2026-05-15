@@ -1,0 +1,38 @@
+ANANYA RAO
+Machine Learning Engineer
+Chennai | ananya.rao@careergrid.dev | +91 91756 86225
+LinkedIn: linkedin.com/in/ananya-rao | GitHub: github.com/ananyarao
+
+PROFESSIONAL SUMMARY
+Machine Learning Engineer based in India with 3+ years of experience. Detail-oriented
+operator who combines analytical depth, product instinct, and calm leadership under
+pressure. Known for documentation discipline, clear stakeholder communication, decision-
+making under ambiguity. Brings polished communication, business alignment, and high-trust
+delivery.
+
+CORE SKILLS
+MLOps, TensorFlow, Model Deployment, PyTorch, FastAPI, Python
+
+TOOLS & PLATFORMS
+AWS, GitHub Actions, Grafana, Prometheus
+
+CAREER HIGHLIGHTS
+- Analyst at LatticeFox: Optimized a document understanding service initiative that saved 65+ hours per month while improving operational visibility.
+- Associate at AetherWorks: Automated a document understanding service initiative that improved model accuracy by 34% for internal stakeholders.
+
+SELECTED PROJECTS
+- Real-Time Recommendation Engine — reduced processing time by 67% using practical prioritization and measurable experimentation.
+- Model Serving Platform — increased conversion by 33% while balancing speed, quality, and maintainability.
+- Fraud Detection Api — improved model accuracy by 66% with close stakeholder alignment and iterative delivery.
+
+STRENGTHS
+- Documentation Discipline
+- Clear Stakeholder Communication
+- Decision-Making Under Ambiguity
+
+EDUCATION
+B.E. — VIT Vellore
+
+CERTIFICATIONS
+- Databricks ML Associate
+- Google Professional ML Engineer

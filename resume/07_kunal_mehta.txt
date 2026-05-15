@@ -1,0 +1,36 @@
+KUNAL MEHTA
+Machine Learning Engineer
+Pune | kunal.mehta@inboxlab.dev | +91 98971 63264
+LinkedIn: linkedin.com/in/kunal-mehta | GitHub: github.com/kunalmehta
+
+PROFESSIONAL SUMMARY
+Machine Learning Engineer based in India with 2+ years of experience. Growth-minded builder
+known for balancing execution speed with quality, stakeholder trust, and user impact. Known
+for clear stakeholder communication, mentoring ability, ownership mindset. Brings polished
+communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+TensorFlow, MLOps, Docker, Kubernetes, PyTorch, Model Deployment
+
+TOOLS & PLATFORMS
+Airflow, GCP, Prometheus
+
+CAREER HIGHLIGHTS
+- Specialist at Northscale: Delivered a fraud detection API initiative that reduced processing time by 29% for a customer-facing product.
+- Specialist at LatticeFox: Improved a model serving platform initiative that raised user satisfaction by 62% across cross-functional teams.
+
+SELECTED PROJECTS
+- Fraud Detection Api — increased conversion by 32% while balancing speed, quality, and maintainability.
+- Real-Time Recommendation Engine — improved model accuracy by 39% using practical prioritization and measurable experimentation.
+- Model Serving Platform — increased conversion by 21% using practical prioritization and measurable experimentation.
+
+STRENGTHS
+- Clear Stakeholder Communication
+- Mentoring Ability
+- Ownership Mindset
+
+EDUCATION
+MCA — VIT Vellore
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

@@ -1,0 +1,38 @@
+ARJUN MEHTA
+Senior Machine Learning Engineer
+Hyderabad | arjun.mehta@careergrid.dev | +91 71454 67154
+LinkedIn: linkedin.com/in/arjun-mehta | GitHub: github.com/arjunmehta
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 4+ years of experience. Outcome-driven
+professional with a strong track record of turning ambiguous business needs into measurable
+results. Known for mentoring ability, product thinking, fast execution. Brings polished
+communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+CI/CD, MLOps, Monitoring, PyTorch, TensorFlow, Model Deployment, Python
+
+TOOLS & PLATFORMS
+Prometheus, GCP, GitHub Actions
+
+CAREER HIGHLIGHTS
+- Senior Analyst at BrightLayer: Launched a document understanding service initiative that saved 22+ hours per month for a customer-facing product.
+- Senior Associate at PixelHarbor: Led a document understanding service initiative that cut manual effort by 37% within a fast-scaling environment.
+- Senior Consultant at AetherWorks: Improved a inference optimization pipeline initiative that increased conversion by 30% within a fast-scaling environment.
+
+SELECTED PROJECTS
+- Fraud Detection Api — cut manual effort by 39% while balancing speed, quality, and maintainability.
+- Model Serving Platform — cut manual effort by 20% with close stakeholder alignment and iterative delivery.
+- Document Understanding Service — improved model accuracy by 33% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Mentoring Ability
+- Product Thinking
+- Fast Execution
+
+EDUCATION
+B.Sc — BITS Pilani
+
+CERTIFICATIONS
+- Databricks ML Associate
+- Google Professional ML Engineer

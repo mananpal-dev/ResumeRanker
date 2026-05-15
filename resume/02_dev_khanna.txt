@@ -1,0 +1,37 @@
+DEV KHANNA
+Senior Machine Learning Engineer
+Noida | dev.khanna@careergrid.dev | +91 78773 18675
+LinkedIn: linkedin.com/in/dev-khanna | GitHub: github.com/devkhanna
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 4+ years of experience. Growth-minded
+builder known for balancing execution speed with quality, stakeholder trust, and user
+impact. Known for structured problem solving, mentoring ability, product thinking. Brings
+polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+Feature Engineering, CI/CD, Monitoring, PyTorch, Python, FastAPI, Model Deployment
+
+TOOLS & PLATFORMS
+Prometheus, GCP, GitHub Actions, Redis
+
+CAREER HIGHLIGHTS
+- Senior Associate at CloudSpire: Launched a fraud detection API initiative that saved 74+ hours per month within a fast-scaling environment.
+- Senior Associate at BlueOrbit: Delivered a model serving platform initiative that boosted stakeholder visibility by 53% while improving operational visibility.
+- Senior Analyst at AetherWorks: Designed a inference optimization pipeline initiative that saved 41+ hours per month for internal stakeholders.
+
+SELECTED PROJECTS
+- Model Serving Platform — raised user satisfaction by 23% through strong execution and clear documentation.
+- Fraud Detection Api — increased conversion by 60% using practical prioritization and measurable experimentation.
+- Real-Time Recommendation Engine — raised user satisfaction by 63% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Structured Problem Solving
+- Mentoring Ability
+- Product Thinking
+
+EDUCATION
+B.Tech — VIT Vellore
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

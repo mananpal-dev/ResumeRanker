@@ -1,0 +1,37 @@
+SIYA MALHOTRA
+Senior Machine Learning Engineer
+Bengaluru | siya.malhotra@careergrid.dev | +91 77133 17665
+LinkedIn: linkedin.com/in/siya-malhotra | GitHub: github.com/siyamalhotra
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 4+ years of experience. Outcome-driven
+professional with a strong track record of turning ambiguous business needs into measurable
+results. Known for fast execution, documentation discipline, cross-functional collaboration.
+Brings polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+TensorFlow, FastAPI, Model Deployment, Docker, Kubernetes, CI/CD, Monitoring
+
+TOOLS & PLATFORMS
+Prometheus, Airflow, AWS
+
+CAREER HIGHLIGHTS
+- Senior Associate at QuantNest: Built a real-time recommendation engine initiative that cut manual effort by 48% while improving operational visibility.
+- Senior Specialist at BrightLayer: Built a inference optimization pipeline initiative that reduced processing time by 72% for internal stakeholders.
+- Senior Analyst at Verity Labs: Led a model serving platform initiative that saved 25+ hours per month while improving operational visibility.
+
+SELECTED PROJECTS
+- Model Serving Platform — reduced processing time by 46% with close stakeholder alignment and iterative delivery.
+- Real-Time Recommendation Engine — improved model accuracy by 33% with close stakeholder alignment and iterative delivery.
+- Document Understanding Service — increased conversion by 36% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Fast Execution
+- Documentation Discipline
+- Cross-Functional Collaboration
+
+EDUCATION
+MBA — Manipal Institute of Technology
+
+CERTIFICATIONS
+- Google Professional ML Engineer

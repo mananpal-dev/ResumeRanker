@@ -1,0 +1,39 @@
+KUNAL SETHI
+Senior Machine Learning Engineer
+Kochi | kunal.sethi@mailforge.dev | +91 87669 27342
+LinkedIn: linkedin.com/in/kunal-sethi | GitHub: github.com/kunalsethi
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 6+ years of experience. Execution-
+focused contributor who thrives in fast-moving teams and consistently turns ideas into
+dependable delivery. Known for clear stakeholder communication, mentoring ability, decision-
+making under ambiguity. Brings polished communication, business alignment, and high-trust
+delivery.
+
+CORE SKILLS
+SQL, Docker, Kubernetes, Model Deployment, FastAPI, TensorFlow, Python
+
+TOOLS & PLATFORMS
+Airflow, MLflow, Grafana
+
+CAREER HIGHLIGHTS
+- Senior Consultant at Northscale: Designed a model serving platform initiative that reduced processing time by 24% within a fast-scaling environment.
+- Senior Consultant at CrestIQ: Designed a fraud detection API initiative that raised user satisfaction by 64% across cross-functional teams.
+- Senior Engineer at Verity Labs: Designed a document understanding service initiative that raised user satisfaction by 73% across cross-functional teams.
+
+SELECTED PROJECTS
+- Model Serving Platform — cut manual effort by 48% using practical prioritization and measurable experimentation.
+- Inference Optimization Pipeline — saved 31+ hours per month with close stakeholder alignment and iterative delivery.
+- Real-Time Recommendation Engine — saved 35+ hours per month through strong execution and clear documentation.
+
+STRENGTHS
+- Clear Stakeholder Communication
+- Mentoring Ability
+- Decision-Making Under Ambiguity
+
+EDUCATION
+B.Sc — VIT Vellore
+
+CERTIFICATIONS
+- Databricks ML Associate
+- AWS Solutions Architect Associate

@@ -1,0 +1,38 @@
+ARJUN DESAI
+Senior Machine Learning Engineer
+Mumbai | arjun.desai@careergrid.dev | +91 97358 20735
+LinkedIn: linkedin.com/in/arjun-desai | GitHub: github.com/arjundesai
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 4+ years of experience. Execution-
+focused contributor who thrives in fast-moving teams and consistently turns ideas into
+dependable delivery. Known for mentoring ability, structured problem solving, documentation
+discipline. Brings polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+Feature Engineering, PyTorch, FastAPI, Model Deployment, Kubernetes, Docker, MLOps
+
+TOOLS & PLATFORMS
+GCP, Airflow, Grafana, AWS
+
+CAREER HIGHLIGHTS
+- Senior Analyst at NovaGrid: Built a document understanding service initiative that increased conversion by 59% across cross-functional teams.
+- Senior Engineer at QuantNest: Built a model serving platform initiative that increased conversion by 71% across cross-functional teams.
+- Senior Specialist at PixelHarbor: Launched a model serving platform initiative that saved 60+ hours per month across cross-functional teams.
+
+SELECTED PROJECTS
+- Inference Optimization Pipeline — boosted stakeholder visibility by 36% with close stakeholder alignment and iterative delivery.
+- Model Serving Platform — increased conversion by 58% through strong execution and clear documentation.
+- Fraud Detection Api — raised user satisfaction by 30% with close stakeholder alignment and iterative delivery.
+
+STRENGTHS
+- Mentoring Ability
+- Structured Problem Solving
+- Documentation Discipline
+
+EDUCATION
+B.E. — PES University
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate
+- Databricks ML Associate

@@ -1,0 +1,37 @@
+ROHAN IYER
+Senior Machine Learning Engineer
+Mumbai | rohan.iyer@careergrid.dev | +91 94985 31174
+LinkedIn: linkedin.com/in/rohan-iyer | GitHub: github.com/rohaniyer
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 5+ years of experience. Outcome-driven
+professional with a strong track record of turning ambiguous business needs into measurable
+results. Known for fast execution, cross-functional collaboration, decision-making under
+ambiguity. Brings polished communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+Monitoring, PyTorch, MLOps, TensorFlow, SQL, FastAPI, Kubernetes
+
+TOOLS & PLATFORMS
+Prometheus, MLflow, AWS, Airflow
+
+CAREER HIGHLIGHTS
+- Senior Associate at CloudSpire: Automated a real-time recommendation engine initiative that reduced processing time by 41% for a customer-facing product.
+- Senior Engineer at Northscale: Launched a inference optimization pipeline initiative that reduced processing time by 23% within a fast-scaling environment.
+- Senior Analyst at Verity Labs: Delivered a model serving platform initiative that boosted stakeholder visibility by 48% while improving operational visibility.
+
+SELECTED PROJECTS
+- Model Serving Platform — raised user satisfaction by 58% while balancing speed, quality, and maintainability.
+- Document Understanding Service — increased conversion by 54% using practical prioritization and measurable experimentation.
+- Fraud Detection Api — boosted stakeholder visibility by 39% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Fast Execution
+- Cross-Functional Collaboration
+- Decision-Making Under Ambiguity
+
+EDUCATION
+B.Tech — Delhi Technological University
+
+CERTIFICATIONS
+- Google Professional ML Engineer

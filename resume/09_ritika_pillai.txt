@@ -1,0 +1,38 @@
+RITIKA PILLAI
+Senior Machine Learning Engineer
+Noida | ritika.pillai@careergrid.dev | +91 99036 92544
+LinkedIn: linkedin.com/in/ritika-pillai | GitHub: github.com/ritikapillai
+
+PROFESSIONAL SUMMARY
+Senior Machine Learning Engineer based in India with 5+ years of experience. Growth-minded
+builder known for balancing execution speed with quality, stakeholder trust, and user
+impact. Known for cross-functional collaboration, clear stakeholder communication,
+documentation discipline. Brings polished communication, business alignment, and high-trust
+delivery.
+
+CORE SKILLS
+Feature Engineering, TensorFlow, Docker, Python, PyTorch, Kubernetes, FastAPI
+
+TOOLS & PLATFORMS
+Redis, MLflow, Prometheus
+
+CAREER HIGHLIGHTS
+- Senior Consultant at QuantNest: Automated a fraud detection API initiative that increased conversion by 27% across cross-functional teams.
+- Senior Consultant at Verity Labs: Launched a model serving platform initiative that raised user satisfaction by 62% while improving operational visibility.
+- Senior Engineer at BrightLayer: Optimized a model serving platform initiative that raised user satisfaction by 25% within a fast-scaling environment.
+
+SELECTED PROJECTS
+- Model Serving Platform — cut manual effort by 55% with close stakeholder alignment and iterative delivery.
+- Fraud Detection Api — raised user satisfaction by 48% while balancing speed, quality, and maintainability.
+- Document Understanding Service — raised user satisfaction by 55% while balancing speed, quality, and maintainability.
+
+STRENGTHS
+- Cross-Functional Collaboration
+- Clear Stakeholder Communication
+- Documentation Discipline
+
+EDUCATION
+M.Tech — Manipal Institute of Technology
+
+CERTIFICATIONS
+- AWS Solutions Architect Associate

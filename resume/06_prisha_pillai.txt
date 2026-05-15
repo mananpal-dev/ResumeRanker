@@ -1,0 +1,36 @@
+PRISHA PILLAI
+Machine Learning Engineer
+Gurugram | prisha.pillai@inboxlab.dev | +91 79810 96951
+LinkedIn: linkedin.com/in/prisha-pillai | GitHub: github.com/prishapillai
+
+PROFESSIONAL SUMMARY
+Machine Learning Engineer based in India with 2+ years of experience. Outcome-driven
+professional with a strong track record of turning ambiguous business needs into measurable
+results. Known for mentoring ability, fast execution, ownership mindset. Brings polished
+communication, business alignment, and high-trust delivery.
+
+CORE SKILLS
+Model Deployment, MLOps, TensorFlow, SQL, Feature Engineering, FastAPI
+
+TOOLS & PLATFORMS
+GitHub Actions, Airflow, MLflow
+
+CAREER HIGHLIGHTS
+- Associate at BlueOrbit: Led a real-time recommendation engine initiative that boosted stakeholder visibility by 53% for internal stakeholders.
+- Associate at AetherWorks: Launched a document understanding service initiative that increased conversion by 61% for a customer-facing product.
+
+SELECTED PROJECTS
+- Inference Optimization Pipeline — raised user satisfaction by 23% through strong execution and clear documentation.
+- Fraud Detection Api — boosted stakeholder visibility by 47% with close stakeholder alignment and iterative delivery.
+- Model Serving Platform — reduced processing time by 20% with close stakeholder alignment and iterative delivery.
+
+STRENGTHS
+- Mentoring Ability
+- Fast Execution
+- Ownership Mindset
+
+EDUCATION
+MBA — Delhi Technological University
+
+CERTIFICATIONS
+- Databricks ML Associate

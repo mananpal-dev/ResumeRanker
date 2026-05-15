@@ -1,0 +1,37 @@
+RHEA RAO
+Machine Learning Engineer
+Kochi | rhea.rao@careergrid.dev | +91 83356 53369
+LinkedIn: linkedin.com/in/rhea-rao | GitHub: github.com/rhearao
+
+PROFESSIONAL SUMMARY
+Machine Learning Engineer based in India with 2+ years of experience. Execution-focused
+contributor who thrives in fast-moving teams and consistently turns ideas into dependable
+delivery. Known for cross-functional collaboration, decision-making under ambiguity,
+ownership mindset. Brings polished communication, business alignment, and high-trust
+delivery.
+
+CORE SKILLS
+Model Deployment, FastAPI, Python, SQL, TensorFlow, PyTorch, Kubernetes
+
+TOOLS & PLATFORMS
+GitHub Actions, GCP, Redis, Airflow
+
+CAREER HIGHLIGHTS
+- Engineer at CrestIQ: Launched a fraud detection API initiative that saved 67+ hours per month while improving operational visibility.
+- Analyst at NovaGrid: Designed a fraud detection API initiative that reduced processing time by 40% for a customer-facing product.
+
+SELECTED PROJECTS
+- Fraud Detection Api — boosted stakeholder visibility by 67% using practical prioritization and measurable experimentation.
+- Inference Optimization Pipeline — saved 34+ hours per month with close stakeholder alignment and iterative delivery.
+- Document Understanding Service — saved 51+ hours per month through strong execution and clear documentation.
+
+STRENGTHS
+- Cross-Functional Collaboration
+- Decision-Making Under Ambiguity
+- Ownership Mindset
+
+EDUCATION
+MBA — NIT Trichy
+
+CERTIFICATIONS
+- Google Professional ML Engineer
