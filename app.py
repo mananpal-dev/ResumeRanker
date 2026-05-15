@@ -33,6 +33,14 @@ from config import (
 from utils.exporter import export_csv, export_json, export_txt_report
 from utils.ranker import CandidateResult, compute_summary, rank_resumes
 
+BASE_DIR = os.path.dirname(__file__)
+SAMPLE_JD_PATH = os.path.join(BASE_DIR, "sample_jd.txt")
+SAMPLE_RESUME_CANDIDATES = [
+    os.path.join(BASE_DIR, "resume"),
+    os.path.join(BASE_DIR, "resumes"),
+    os.path.join(BASE_DIR, "sample_resumes"),
+]
+
 
 st.set_page_config(
     page_title="AI Resume Ranker",
@@ -48,6 +56,7 @@ for key, default in {
     "jd_text_override": "",
     "results": None,
     "summary": None,
+    "data_source": "sample",
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
@@ -657,6 +666,62 @@ def _dl_button(label: str, data: bytes, filename: str, mime: str):
     st.markdown(href, unsafe_allow_html=True)
 
 
+def get_sample_resume_dir() -> str:
+    for path in SAMPLE_RESUME_CANDIDATES:
+        if os.path.isdir(path):
+            return path
+    return ""
+
+
+def sample_assets_available() -> bool:
+    sample_dir = get_sample_resume_dir()
+    return os.path.isfile(SAMPLE_JD_PATH) and bool(sample_dir)
+
+
+def load_sample_jd_text() -> str:
+    if not os.path.isfile(SAMPLE_JD_PATH):
+        return ""
+    with open(SAMPLE_JD_PATH, "r", encoding="utf-8", errors="ignore") as handle:
+        return handle.read()
+
+
+def build_candidate_palette(names: List[str]) -> dict:
+    palette = [
+        "#ffb84d", "#4dd0e1", "#ff7a90", "#9b87f5", "#67d17a",
+        "#f97316", "#22c55e", "#60a5fa", "#f472b6", "#a3e635",
+        "#facc15", "#38bdf8", "#fb7185", "#c084fc", "#34d399",
+        "#f59e0b", "#818cf8", "#2dd4bf", "#e879f9", "#84cc16",
+    ]
+    return {name: palette[idx % len(palette)] for idx, name in enumerate(names)}
+
+
+def run_ranking_pipeline(resume_dir: str, jd_text: str):
+    prog_bar = st.progress(0, text="Preparing ranking run...")
+    status_txt = st.empty()
+
+    def progress_cb(cur, total, fname):
+        pct = int(cur / total * 88) if total else 0
+        prog_bar.progress(pct, text=f"Processing {fname}...")
+        status_txt.text(f"Analysing {cur}/{total}: {fname}")
+
+    started = time.time()
+    results, ignored = rank_resumes(resume_dir, jd_text, progress_callback=progress_cb)
+    elapsed = time.time() - started
+    prog_bar.progress(100, text="Ranking complete")
+    status_txt.empty()
+
+    summary = compute_summary(results)
+    st.session_state["results"] = results
+    st.session_state["summary"] = summary
+    st.session_state["jd_text"] = jd_text
+    st.session_state["ignored"] = ignored
+    st.session_state["elapsed"] = elapsed
+
+    st.success(f"Ranked {len(results)} candidate(s) in {elapsed:.2f}s. Open the Results or Recruiter Brief tab next.")
+    if ignored:
+        st.warning(f"Skipped {len(ignored)} file(s): {', '.join(ignored)}")
+
+
 def get_priority_label(candidate: CandidateResult) -> str:
     if (
         candidate.final_score >= PRIORITY_HIGH_SCORE
@@ -838,19 +903,65 @@ tab_upload, tab_results, tab_brief, tab_analytics, tab_compare, tab_about = st.t
 
 
 with tab_upload:
-    st.markdown("## Job Description")
+    st.markdown("## Role Setup")
     st.markdown(
-        "<div class='muted-text'>Paste the role brief or upload a `.txt` description to start ranking resumes.</div>",
+        "<div class='muted-text'>For deployment, you can run the site directly from bundled sample resumes and a bundled job description so recruiters never have to upload files.</div>",
         unsafe_allow_html=True,
     )
 
+    sample_dir = get_sample_resume_dir()
+    has_sample_assets = sample_assets_available()
+
+    source_col, info_col = st.columns([1.15, 1])
+    with source_col:
+        data_source = st.radio(
+            "Resume source",
+            ["Bundled sample resumes", "Upload my own resumes"],
+            index=0 if st.session_state.get("data_source", "sample") == "sample" else 1,
+            horizontal=True,
+        )
+        st.session_state["data_source"] = "sample" if data_source == "Bundled sample resumes" else "upload"
+
+    with info_col:
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        if has_sample_assets:
+            sample_count = len(
+                [
+                    name for name in os.listdir(sample_dir)
+                    if os.path.isfile(os.path.join(sample_dir, name))
+                ]
+            )
+            st.markdown("**Bundled demo data detected**")
+            st.markdown(f"- JD file: `sample_jd.txt`")
+            st.markdown(f"- Resume folder: `{os.path.basename(sample_dir)}`")
+            st.markdown(f"- Resume files found: `{sample_count}`")
+        else:
+            st.markdown("**Bundled demo data not found yet**")
+            st.markdown("- Add `sample_jd.txt` to the project root")
+            st.markdown("- Add a folder like `resume/` with your sample resumes")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("## Job Description")
     col_jd, col_ex = st.columns([3, 1])
     with col_jd:
-        jd_input_mode = st.radio("Input mode", ["Type / Paste", "Upload .txt file"], horizontal=True)
+        if st.session_state["data_source"] == "sample":
+            jd_input_mode = "Bundled sample JD"
+            st.radio("Input mode", ["Bundled sample JD"], horizontal=True, index=0, disabled=True)
+        else:
+            jd_input_mode = st.radio("Input mode", ["Type / Paste", "Upload .txt file"], horizontal=True)
 
     jd_text = ""
     with col_jd:
-        if jd_input_mode == "Type / Paste":
+        if jd_input_mode == "Bundled sample JD":
+            jd_text = load_sample_jd_text()
+            st.text_area(
+                "Job Description",
+                value=jd_text if jd_text else "sample_jd.txt was not found in the app folder.",
+                height=240,
+                disabled=True,
+                key="sample_jd_preview",
+            )
+        elif jd_input_mode == "Type / Paste":
             jd_text = st.text_area(
                 "Job Description",
                 height=240,
@@ -864,7 +975,10 @@ with tab_upload:
 
     with col_ex:
         st.markdown("<div class='section-card'>", unsafe_allow_html=True)
-        if st.button("Load Example JD", use_container_width=True):
+        if st.session_state["data_source"] == "sample":
+            st.markdown("**Bundled mode**")
+            st.markdown("The app will rank the sample resumes shipped with the project.")
+        elif st.button("Load Example JD", use_container_width=True):
             jd_text = """Senior Data Scientist – Python, Machine Learning, NLP
 
 We are looking for an experienced Data Scientist with strong skills in Python,
@@ -883,7 +997,7 @@ Education: B.Tech / M.Tech in CS, Data Science, or related field.
             st.session_state["jd_text_override"] = jd_text
             st.rerun()
         st.markdown(
-            "<div class='muted-text'>Use the example when you want a fast walkthrough without preparing a JD file first.</div>",
+            "<div class='muted-text'>Bundled mode is ideal for deployed portfolio demos because reviewers can click once and see the shortlist immediately.</div>",
             unsafe_allow_html=True,
         )
         st.markdown("</div>", unsafe_allow_html=True)
@@ -893,61 +1007,67 @@ Education: B.Tech / M.Tech in CS, Data Science, or related field.
         st.text_area("Job Description (example loaded)", jd_text, height=240, key="jd_display")
 
     st.markdown("---")
-    st.markdown("## Resume Upload")
+    uploaded_files = []
+    if st.session_state["data_source"] == "upload":
+        st.markdown("---")
+        st.markdown("## Resume Upload")
 
-    uploaded_files = st.file_uploader(
-        "Drop PDF / DOCX / TXT resume files here",
-        type=["pdf", "docx", "txt"],
-        accept_multiple_files=True,
-    )
+        uploaded_files = st.file_uploader(
+            "Drop PDF / DOCX / TXT resume files here",
+            type=["pdf", "docx", "txt"],
+            accept_multiple_files=True,
+        )
 
-    if uploaded_files:
-        st.success(f"{len(uploaded_files)} file(s) uploaded")
-        with st.expander("View uploaded files"):
-            for item in uploaded_files:
-                st.write(f"• {item.name} ({item.size / 1024:.1f} KB)")
+        if uploaded_files:
+            st.success(f"{len(uploaded_files)} file(s) uploaded")
+            with st.expander("View uploaded files"):
+                for item in uploaded_files:
+                    st.write(f"• {item.name} ({item.size / 1024:.1f} KB)")
+    else:
+        st.markdown("---")
+        st.markdown("## Sample Resume Set")
+        if has_sample_assets:
+            sample_files = sorted(
+                [
+                    name for name in os.listdir(sample_dir)
+                    if os.path.isfile(os.path.join(sample_dir, name))
+                ]
+            )
+            st.success(f"{len(sample_files)} bundled sample resume file(s) ready")
+            with st.expander("View bundled sample files"):
+                for name in sample_files:
+                    st.write(f"• {name}")
+        else:
+            st.warning("Bundled sample assets are not available yet.")
 
     st.markdown("---")
     run_col, _ = st.columns([1, 3])
     with run_col:
-        run_btn = st.button("Run Ranking", use_container_width=True)
+        if st.session_state["data_source"] == "sample":
+            run_btn = st.button("Run Sample Ranking", use_container_width=True)
+        else:
+            run_btn = st.button("Run Ranking", use_container_width=True)
 
     if run_btn:
-        if not jd_text.strip():
-            st.error("Please enter a Job Description first.")
-        elif not uploaded_files:
-            st.error("Please upload at least one resume.")
+        if st.session_state["data_source"] == "sample":
+            if not has_sample_assets:
+                st.error("Bundled sample assets were not found. Add `sample_jd.txt` and a `resume/` folder in the app root.")
+            elif not jd_text.strip():
+                st.error("`sample_jd.txt` is empty or unreadable.")
+            else:
+                run_ranking_pipeline(sample_dir, jd_text)
         else:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                for uploaded in uploaded_files:
-                    dest = os.path.join(tmpdir, uploaded.name)
-                    with open(dest, "wb") as out:
-                        out.write(uploaded.read())
-
-                prog_bar = st.progress(0, text="Preparing ranking run...")
-                status_txt = st.empty()
-
-                def progress_cb(cur, total, fname):
-                    pct = int(cur / total * 88) if total else 0
-                    prog_bar.progress(pct, text=f"Processing {fname}...")
-                    status_txt.text(f"Analysing {cur}/{total}: {fname}")
-
-                started = time.time()
-                results, ignored = rank_resumes(tmpdir, jd_text, progress_callback=progress_cb)
-                elapsed = time.time() - started
-                prog_bar.progress(100, text="Ranking complete")
-                status_txt.empty()
-
-            summary = compute_summary(results)
-            st.session_state["results"] = results
-            st.session_state["summary"] = summary
-            st.session_state["jd_text"] = jd_text
-            st.session_state["ignored"] = ignored
-            st.session_state["elapsed"] = elapsed
-
-            st.success(f"Ranked {len(results)} candidate(s) in {elapsed:.2f}s. Open the Results or Recruiter Brief tab next.")
-            if ignored:
-                st.warning(f"Skipped {len(ignored)} file(s): {', '.join(ignored)}")
+            if not jd_text.strip():
+                st.error("Please enter a Job Description first.")
+            elif not uploaded_files:
+                st.error("Please upload at least one resume.")
+            else:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    for uploaded in uploaded_files:
+                        dest = os.path.join(tmpdir, uploaded.name)
+                        with open(dest, "wb") as out:
+                            out.write(uploaded.read())
+                    run_ranking_pipeline(tmpdir, jd_text)
 
 
 with tab_results:
@@ -1290,6 +1410,7 @@ with tab_analytics:
                 for r in results
             ]
         )
+        candidate_palette = build_candidate_palette(df["Name"].tolist())
 
         c1, c2 = st.columns(2)
         with c1:
@@ -1298,12 +1419,8 @@ with tab_analytics:
                 x="Score",
                 y="Name",
                 orientation="h",
-                color="Status",
-                color_discrete_map={
-                    "Shortlisted": "#0f766e",
-                    "Maybe": "#bc862f",
-                    "Not Relevant": "#b6554d",
-                },
+                color="Name",
+                color_discrete_map=candidate_palette,
                 title="Top Candidate Match Scores",
                 template="simple_white",
             )
@@ -1350,15 +1467,10 @@ with tab_analytics:
                 df,
                 x="Experience",
                 y="Score",
-                color="Priority",
+                color="Name",
                 size="Coverage %",
                 hover_name="Name",
-                color_discrete_map={
-                    "High Priority": "#0f766e",
-                    "Strong Review": "#bc862f",
-                    "Hold for Review": "#d2a051",
-                    "Low Priority": "#b6554d",
-                },
+                color_discrete_map=candidate_palette,
                 title="Experience vs Match Score",
                 template="simple_white",
             )
