@@ -1,111 +1,141 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Syne&weight=700&size=34&pause=1000&color=6C63FF&center=true&vCenter=true&width=700&lines=🎯+AI+Resume+Ranker+v2.0;NLP-Powered+Candidate+Screening;Multi-Factor+Weighted+Scoring" alt="Typing SVG" />
+# AI Resume Ranker
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Web_App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-ML_Engine-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-NLP_Engine-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
 [![Plotly](https://img.shields.io/badge/Plotly-Analytics-3F4F75?style=for-the-badge&logo=plotly&logoColor=white)](https://plotly.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-00e17a?style=for-the-badge)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-B5F23C?style=for-the-badge)](LICENSE)
 
-<br>
+<br/>
 
-> **An intelligent, multi-factor NLP system that ranks resumes against job descriptions — built to show how modern ATS works, with full explainability.**
+**[🌐 Live Demo](https://resume-ranker-by-manan.streamlit.app)** &nbsp;·&nbsp; **[👤 Portfolio](https://manan-pal-portfolio.vercel.app)** &nbsp;·&nbsp; **[💻 GitHub](https://github.com/mananpal-dev/ResumeRanker)**
+
+<br/>
+
+> *Most ATS tools are black boxes. This one shows its work.*
 
 </div>
 
 ---
 
-## 🚀 What's New in v2.0
+## What This Is
 
-| Feature | v1.0 | v2.0 |
-|---|:---:|:---:|
-| TF-IDF cosine similarity | ✅ | ✅ Enhanced (bigrams) |
-| Keyword matching | Basic | ✅ 80+ skills, 6 categories |
-| Seniority detection | ❌ | ✅ |
-| Education tier matching | ❌ | ✅ |
-| Experience year extraction | ❌ | ✅ |
-| Skill gap analysis | ❌ | ✅ |
-| Contact info extraction | ❌ | ✅ Email · Phone · LinkedIn · GitHub |
-| DOCX support | ❌ | ✅ |
-| Streamlit web app | ❌ | ✅ Full dashboard |
-| Interactive analytics | ❌ | ✅ 6 Plotly charts |
-| Side-by-side comparison | ❌ | ✅ Radar chart |
-| JSON export | ❌ | ✅ |
-| Modular architecture | ❌ | ✅ |
+AI Resume Ranker is a full-stack screening dashboard that combines weighted NLP scoring with a recruiter-facing interface. Drop in resumes and a job description — it returns a ranked shortlist with match scores, skill gap analysis, priority labels, interview readiness signals, and recommended next actions. The UI is built to present, not just prototype.
+
+Two interfaces ship together:
+
+- **Streamlit web app** — recruiter dashboard with analytics, radar comparison, and decision logging
+- **Tkinter desktop app** — fast local GUI with a dedicated Recruiter View tab for notes and decisions
 
 ---
 
-## 🧠 How the Scoring Works
+## How the Scoring Works
 
 ```
-Final Score = 0.60 × TF-IDF_Cosine
-            + 0.25 × Keyword_Match
-            + 0.10 × Seniority_Match
-            + 0.05 × Education_Match
+Final Score = 0.60 × TF-IDF Cosine Similarity
+            + 0.25 × Keyword Match Score
+            + 0.10 × Seniority Match
+            + 0.05 × Education Match
 ```
 
-| Component | Weight | Description |
+| Component | Weight | What It Measures |
 |---|---|---|
-| **TF-IDF Cosine Similarity** | 60% | Bigram TF-IDF vectors compared via cosine distance |
-| **Keyword Match Score** | 25% | Exact match across 80+ curated tech skills in 6 groups |
-| **Seniority Match** | 10% | Compares JD seniority tier vs resume tier |
-| **Education Match** | 5% | Diploma → Bachelor → Master → PhD tier comparison |
+| TF-IDF Cosine Similarity | 60% | Bigram vector comparison between resume and JD |
+| Keyword Match Score | 25% | Exact match against 80+ curated skills across 6 groups |
+| Seniority Match | 10% | Junior / Mid / Senior alignment with the JD |
+| Education Match | 5% | Diploma → Bachelor → Master → PhD tier comparison |
 
 ### Status Thresholds
+
 | Score | Status |
 |---|---|
-| ≥ 0.45 | ✅ **Shortlisted** |
-| ≥ 0.20 | 🤔 **Maybe** |
-| < 0.20 | ❌ **Not Relevant** |
+| ≥ 0.45 | ✅ Shortlisted |
+| ≥ 0.20 | 🤔 Maybe |
+| < 0.20 | ❌ Not Relevant |
+
+### Priority Labels
+
+On top of status, each candidate gets a recruiter-facing priority tier — blending score, skill coverage, and experience into one signal.
+
+| Label | Criteria |
+|---|---|
+| High Priority | Score ≥ 0.82 · Coverage ≥ 65% · Experience ≥ 4yr |
+| Strong Review | Score ≥ 0.62 · Coverage ≥ 45% |
+| Hold for Review | Score ≥ 0.20 |
+| Low Priority | Below all thresholds |
 
 ---
 
-## ✨ Key Features
+## Features
 
-- 🗂️ **Multi-format support** — PDF, DOCX, TXT resumes
-- 🎯 **Weighted NLP scoring** — 4-factor formula for accurate ranking
-- 🔬 **Skill gap analysis** — shows exactly which required skills a candidate is missing
-- 📇 **Contact extraction** — auto-extracts email, phone, LinkedIn, GitHub
-- 🎓 **Education detection** — Diploma / Bachelor / Master / PhD tier matching
-- 👔 **Seniority detection** — Junior / Mid / Senior level awareness
-- 📅 **Experience estimation** — reads years from resume text and date ranges
-- 📊 **Analytics dashboard** — 6 interactive Plotly charts (Streamlit app)
-- ⚖️ **Candidate comparison** — radar chart side-by-side comparison
-- 📥 **3 export formats** — CSV, JSON, TXT report
-- 🖥️ **Two interfaces** — Streamlit web app + Tkinter desktop app
+**Scoring & Ranking**
+- Multi-factor NLP pipeline — TF-IDF bigrams, keyword matching, seniority, education
+- 80+ curated skills across 6 groups: Languages, ML/AI, Frameworks, Web/API, Databases/Cloud, Tools
+- Skill gap analysis showing exact missing skills per candidate and per category
+- Experience extraction from free text and date ranges
+- All thresholds configurable in `config.py` — no code changes needed elsewhere
+
+**Recruiter Intelligence**
+- Priority labels combining three signals into one actionable tier
+- Interview readiness per candidate
+- Recommended next action — recruiter screen / hiring manager / backup pipeline / archive
+- Contact completeness visibility — email, phone, LinkedIn, GitHub
+- Per-candidate recruiter notes and decision dropdown, persisted within session
+- Decision log table from the Recruiter Brief tab
+
+**Interfaces**
+- Streamlit: dark editorial dashboard with signal cards, analytics, radar comparison, contact sheet, and recruiter brief
+- Tkinter: desktop app with Rankings, Summary, Recruiter View, and Skill Map tabs
+- Double-click any candidate in the desktop app to open a full detail and notes panel
+
+**Analytics**
+- Match score bar chart across top candidates
+- Status distribution donut chart
+- Experience vs match score scatter plot
+- Skill coverage histogram
+- Top 20 skills frequency chart
+- Side-by-side radar comparison with skill overlap breakdown
+
+**Exports**
+- CSV ranked results
+- JSON with full scoring breakdown
+- TXT recruiter report
+- Bundled sample mode for zero-friction portfolio demos
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 AI-Resume-Ranker/
 │
-├── app.py                  ← 🌐 Streamlit web app (run this!)
-├── main.py                 ← 🖥️  Tkinter desktop app
-├── config.py               ← ⚙️  All settings & thresholds
+├── app.py                    ← Streamlit web app
+├── main.py                   ← Tkinter desktop app
+├── resume_generator.py       ← Synthetic resume generator
+├── config.py                 ← All settings, weights, thresholds
 │
 ├── utils/
 │   ├── __init__.py
-│   ├── text_processing.py  ← 📝 PDF/DOCX parsing, NLP helpers
-│   ├── ranker.py           ← 🧠 Core scoring & ranking engine
-│   └── exporter.py         ← 📥 CSV / JSON / TXT exporters
+│   ├── text_processing.py    ← PDF / DOCX parsing, NLP helpers
+│   ├── ranker.py             ← Core scoring and ranking engine
+│   └── exporter.py           ← CSV / JSON / TXT exporters
 │
-├── resumes/                ← 📂 Place candidate PDFs here
-├── job_description.txt     ← 📋 Sample JD (edit or replace)
+├── resumes/                  ← Place candidate resumes here
+├── sample_jd.txt             ← Bundled JD for demo mode
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation
 
-### 1. Clone the repository
+### 1. Clone the repo
 ```bash
 git clone https://github.com/mananpal-dev/ResumeRanker.git
-cd AI-Resume-Ranker
+cd ResumeRanker
 ```
 
 ### 2. Install dependencies
@@ -113,106 +143,161 @@ cd AI-Resume-Ranker
 pip install -r requirements.txt
 ```
 
-### 3. Add your resumes
-Place PDF, DOCX, or TXT resumes inside the `/resumes` folder.
-
-### 4. Edit the job description
-Open `job_description.txt` and paste your target role's JD.
+### 3. Add your data
+- Drop PDF, DOCX, or TXT resumes into `/resumes`
+- Paste the target job description into `sample_jd.txt`
 
 ---
 
-## 🏃 Running the App
+## Running the App
 
-### 🌐 Streamlit Web App (recommended)
+### Streamlit Web App
 ```bash
 streamlit run app.py
 ```
-Opens a full interactive dashboard in your browser with charts, filters, exports, and side-by-side comparison.
+Opens the full recruiter dashboard in your browser — rank candidates, review signals, export shortlists.
 
-### 🖥️ Tkinter Desktop App
+### Tkinter Desktop App
 ```bash
 python main.py
 ```
-Classic desktop GUI with tabbed interface, colour-coded results, and export options.
+Local GUI with Rankings, Summary, Recruiter View, and Skill Map tabs. Double-click any candidate to open a detail panel with notes.
+
+### Synthetic Resume Generator
+```bash
+streamlit run resume_generator.py
+```
+Generates realistic test resumes for 6 target roles with varied seniority, skills, tone, and optional intentional skill gaps. Export as ZIP or individual `.txt` files — feed directly into the ranker.
 
 ---
 
-## 📊 Example Output
+## Bundled Demo Mode
+
+For portfolio demos where you don't want reviewers to upload anything, set up the sample assets once:
 
 ```
-===== RANKED CANDIDATES =====
-
-#1  john_doe.pdf
-    Status   : ✅ Shortlisted
-    Score    : 0.7842  (TF-IDF=0.621 | KW=0.480)
-    Skills   : python, machine learning, deep learning, tensorflow,
-               pandas, numpy, sql, docker, aws, fastapi
-    Missing  : langchain, airflow, kafka
-    Coverage : 76.9%
-    Seniority: senior  |  Education: masters  |  Exp: 6yr
-    Email    : john@example.com
-    LinkedIn : linkedin.com/in/johndoe
-
-#2  jane_smith.pdf
-    Status   : ✅ Shortlisted
-    Score    : 0.6931  (TF-IDF=0.558 | KW=0.400)
-    ...
-
-===== SUMMARY =====
-  Total: 10  |  Shortlisted: 3  |  Maybe: 4  |  Not Relevant: 3
-  Avg Score: 0.3821  |  Top Score: 0.7842
+ResumeRanker/
+├── sample_jd.txt
+└── resumes/
+    ├── candidate_01.pdf
+    ├── candidate_02.pdf
+    └── ...
 ```
+
+Select **Bundled sample resumes** in the app — reviewers click once and immediately see a full ranked shortlist with recruiter signals, no uploads required.
+
+🔗 See it live: [resume-ranker-by-manan.streamlit.app](https://resume-ranker-by-manan.streamlit.app)
 
 ---
 
-## 🛠️ Tech Stack
+## Configuration
+
+Everything lives in `config.py`:
+
+```python
+# Scoring weights
+TFIDF_WEIGHT     = 0.60
+KEYWORD_WEIGHT   = 0.25
+SENIORITY_WEIGHT = 0.10
+EDUCATION_WEIGHT = 0.05
+
+# Status thresholds
+SHORTLIST_THRESHOLD = 0.45
+MAYBE_THRESHOLD     = 0.20
+
+# Priority thresholds
+PRIORITY_HIGH_SCORE    = 0.82
+PRIORITY_HIGH_COVERAGE = 65
+PRIORITY_HIGH_EXP      = 4
+
+# Interview readiness
+INTERVIEW_READY_SCORE  = 0.75
+```
+
+Change any value and re-run. Nothing else needs touching.
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Language | Python 3.9+ |
-| NLP / ML | scikit-learn, TF-IDF, Cosine Similarity |
-| PDF Parsing | pdfplumber, PyPDF2 |
+| NLP / ML | scikit-learn · TF-IDF · Cosine Similarity |
+| PDF Parsing | pdfplumber · PyPDF2 |
 | DOCX Parsing | docx2txt |
 | Web UI | Streamlit |
 | Charts | Plotly |
 | Desktop UI | Tkinter |
-| Data | pandas, numpy |
+| Data | pandas · numpy |
 
 ---
 
-## 📥 Dataset Credits
+## Example Output
+
+```
+===== RANKED CANDIDATES =====
+
+#01  aisha_rahman_swe.pdf
+     Status    : ✅ Shortlisted
+     Score     : 0.9421  (TF-IDF: 0.881  KW: 0.912)
+     Priority  : High Priority
+     Readiness : Ready now
+     Action    : Move to recruiter screen
+     Skills    : python, react, aws, docker, machine learning
+     Missing   : langchain, kafka, airflow
+     Coverage  : 94%  |  Seniority: senior  |  Exp: 6yr
+
+#02  priya_kapoor_ml.pdf
+     Status    : ✅ Shortlisted
+     Score     : 0.9102  (TF-IDF: 0.854  KW: 0.889)
+     Priority  : High Priority
+     ...
+
+===== SUMMARY =====
+  Total: 12  |  Shortlisted: 4  |  Maybe: 5  |  Not Relevant: 3
+  High Priority: 2  |  Avg Score: 0.6214  |  Top Score: 0.9421
+```
+
+---
+
+## Roadmap
+
+- [ ] BERT-based semantic similarity
+- [ ] GPT-powered candidate summary generation
+- [ ] Resume anonymisation for bias-free screening
+- [ ] Batch email generation for shortlisted candidates
+- [ ] FastAPI REST endpoint
+- [ ] Docker containerisation
+
+---
+
+## Dataset Credits
 
 Sample resumes used for testing are sourced from publicly available datasets on Kaggle for educational purposes only.
 
-Dataset: [Resume Data PDF — Kaggle](https://www.kaggle.com/datasets/hadikp/resume-data-pdf)
-
 ---
 
-## 🗺️ Roadmap
+## Author
 
-- [ ] Resume anonymisation mode (remove names/contact for bias-free screening)
-- [ ] GPT-powered resume summary generation
-- [ ] Batch email generation for shortlisted candidates
-- [ ] BERT-based semantic similarity (beyond TF-IDF)
-- [ ] REST API endpoint (FastAPI)
-- [ ] Docker containerization
-
----
-
-## 👨‍💻 Author
+<div align="center">
 
 **Manan Pal**  
-B.Tech CSE Student · Aspiring Software & AI Developer
+B.Tech CSE · Aspiring Software & AI Developer
 
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/yourprofile)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-B5F23C?style=for-the-badge&logo=vercel&logoColor=black)](https://manan-pal-portfolio.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mananpal-dev)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mananpal-dev)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://resume-ranker-by-manan.streamlit.app)
+
+</div>
 
 ---
 
 <div align="center">
 
-⭐ **Star this repo if it helped you** — it motivates further improvements!
+⭐ **Star this repo if it helped you**
 
-*Built with ❤️ to make hiring smarter, faster, and fairer.*
+*Built to make hiring smarter, faster, and fairer.*
 
 </div>
